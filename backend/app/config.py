@@ -7,6 +7,7 @@ BACKEND_DIR = Path(__file__).resolve().parent.parent
 # Server configuration
 HOST: str = os.getenv("HOST", "127.0.0.1")
 PORT: int = int(os.getenv("PORT", "8000"))
+APP_ENV: str = os.getenv("APP_ENV", "development")
 
 # CORS configuration - Local Vite frontend URL only
 _cors_raw: str = os.getenv("CORS_ORIGINS", "http://localhost:5173")
@@ -26,3 +27,18 @@ ASTROWORLD_API_TIMEOUT_SECONDS: float = float(
 ASTROWORLD_AUDIT_DELAY_SECONDS: float = float(
     os.getenv("ASTROWORLD_AUDIT_DELAY_SECONDS", "1.3")
 )
+
+# Rate limiting & Retry configuration (strict 50 RPM limit)
+ASTROWORLD_RATE_LIMIT_MAX_REQUESTS: float = float(
+    os.getenv("ASTROWORLD_RATE_LIMIT_MAX_REQUESTS", "50.0")
+)
+ASTROWORLD_RATE_LIMIT_REFILL_SECONDS: float = float(
+    os.getenv("ASTROWORLD_RATE_LIMIT_REFILL_SECONDS", "1.2")
+)
+ASTROWORLD_MAX_RETRIES: int = int(
+    os.getenv("ASTROWORLD_MAX_RETRIES", "3")
+)
+ASTROWORLD_RETRY_BACKOFF_SECONDS: float = float(
+    os.getenv("ASTROWORLD_RETRY_BACKOFF_SECONDS", "1.0")
+)
+ASTROWORLD_RETRY_BACKOFF_FACTOR = ASTROWORLD_RETRY_BACKOFF_SECONDS

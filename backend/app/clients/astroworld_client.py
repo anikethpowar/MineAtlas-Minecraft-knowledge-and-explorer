@@ -7,7 +7,7 @@ CRITICAL RULES:
 1. Browser/frontend MUST NEVER call Astroworld directly.
 2. Only this backend client connects to Astroworld.
 3. Astroworld is a public API (no API key required).
-4. All calls must be bounded by reasonable timeouts and error handling.
+4. All calls must be bounded by reasonable timeouts and the strict 50 req/min rate limiter.
 """
 
 from typing import Any
@@ -16,7 +16,23 @@ import httpx
 from app.config import (
     ASTROWORLD_API_BASE_URL,
     ASTROWORLD_API_TIMEOUT_SECONDS,
+    ASTROWORLD_RATE_LIMIT_MAX_REQUESTS,
+    ASTROWORLD_RATE_LIMIT_REFILL_SECONDS,
 )
+
+_default_rate_limiter = None
+
+
+def get_default_rate_limiter():
+    """Lazily initialize the process-wide token bucket rate limiter."""
+    global _default_rate_limiter
+    if _default_rate_limiter is None:
+        from app.services.rate_limiter import RateLimiter
+        _default_rate_limiter = RateLimiter(
+            capacity=ASTROWORLD_RATE_LIMIT_MAX_REQUESTS,
+            refill_rate=1.0 / ASTROWORLD_RATE_LIMIT_REFILL_SECONDS,
+        )
+    return _default_rate_limiter
 
 
 class AstroworldClientError(Exception):
@@ -69,6 +85,7 @@ class AstroworldClient:
         base_url: str | None = None,
         timeout: float | None = None,
         client: httpx.Client | None = None,
+        rate_limiter: Any = None,
     ) -> None:
         self.base_url = (base_url or ASTROWORLD_API_BASE_URL).rstrip("/")
         self.timeout = (
@@ -76,6 +93,11 @@ class AstroworldClient:
         )
         self._client = client
         self._owns_client = client is None
+        self.rate_limiter = (
+            rate_limiter if rate_limiter is not None else get_default_rate_limiter()
+        )
+        self.last_status_code: int | None = None
+        self.last_response_headers: dict[str, str] = {}
 
     def _get_client(self) -> httpx.Client:
         if self._client is None:
@@ -84,7 +106,7 @@ class AstroworldClient:
                 timeout=self.timeout,
                 headers={
                     "Accept": "application/json",
-                    "User-Agent": "MineAtlas/0.2.0 (Audit Tool; +https://github.com/anikethpowar/MineAtlas)",
+                    "User-Agent": "MineAtlas/0.4.0 (Ingestion Tool; +https://github.com/anikethpowar/MineAtlas)",
                 },
                 follow_redirects=True,
             )
@@ -95,19 +117,22 @@ class AstroworldClient:
         url_path = endpoint if endpoint.startswith("/") else f"/{endpoint}"
         client = self._get_client()
 
+        if self.rate_limiter is not None:
+            self.rate_limiter.acquire(1.0)
+
         try:
             response = client.get(url_path)
+            self.last_status_code = response.status_code
+            self.last_response_headers = dict(response.headers)
         except httpx.TimeoutException as exc:
+            self.last_status_code = None
             raise AstroworldTimeoutError(
                 f"Request timed out for endpoint '{url_path}': {exc}"
             ) from exc
-        except httpx.NetworkError as exc:
+        except (httpx.NetworkError, httpx.RequestError) as exc:
+            self.last_status_code = None
             raise AstroworldConnectionError(
                 f"Network connection failed for endpoint '{url_path}': {exc}"
-            ) from exc
-        except httpx.RequestError as exc:
-            raise AstroworldConnectionError(
-                f"Request error occurred for endpoint '{url_path}': {exc}"
             ) from exc
 
         # Handle 429 Rate Limiting specifically
@@ -222,4 +247,3 @@ class AstroworldClient:
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         self.close()
-

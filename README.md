@@ -6,19 +6,20 @@ MineAtlas is an interactive explorer for Minecraft Java Edition that connects bi
 
 ---
 
-## Current Status: Phase 3 (Database Foundation)
+## Current Status: Phase 4 (Data Ingestion & Knowledge Graph Caching)
 
-MineAtlas has established its canonical relational and knowledge graph database schema:
+MineAtlas has implemented a robust, rate-limited data ingestion pipeline with local SQLite caching and knowledge graph edge derivation:
 - **Phase 1 (Foundation):** Runnable FastAPI backend, React + Vite frontend, and basic CI.
 - **Phase 2 (API Audit):** Safe, rate-limited audit tool (`python -m app.scripts.audit_astroworld`) verified all 9 Astroworld collection endpoints.
 - **Phase 3 (Database Schema):** SQLite database configured with SQLAlchemy ORM models and Alembic migrations across 16 canonical tables (including `mobs`, `biomes`, `items`, `structures`, `trades`, `farms`, and generic `relation_edges`).
+- **Phase 4 (Ingestion & Graph Caching):** Strict 50 req/min token-bucket rate limiter, idempotent upserts into SQLite (`backend/data/mineatlas.db`), probability normalization, `SyncRun` tracking, and automatic derivation of initial semantic graph edges (`SPAWNS_IN`, `DROPS`, `BREEDS_WITH`, `TAMED_WITH`, `FOUND_IN`, `LOCATED_IN`, `CONTAINS_LOOT`, `TRADED_BY`, `UNLOCKS`, `ADDED_IN`).
 
 > [!NOTE]
 > **Planned for Later Phases:**
-> - **Astroworld Ingestion Pipeline:** Automated ingestion of upstream collections into SQLite (Phase 4).
-> - **Graph Edge Derivation:** Populate `relation_edges` from entity drops, biomes, trades, and recipes (Phase 4).
-> - **Knowledge Graph Visualizer & Data Pages:** Interactive frontend relationship exploration (Phase 5).
-> - **Farm Guides:** Handcrafted Java Edition farm blueprints with production metrics (Phase 5).
+> - **Public Backend Query APIs:** List/detail endpoints with filtering and pagination (Phase 5).
+> - **Global Search:** Fast multi-entity search across biomes, mobs, items, and structures (Phase 5).
+> - **Interactive Knowledge Graph Visualizer:** React + Cytoscape graph canvas (Phase 6).
+> - **Curated Farm Guides:** Handcrafted Java Edition farm blueprints with production metrics (Phase 7).
 
 ---
 
@@ -30,8 +31,8 @@ MineAtlas has established its canonical relational and knowledge graph database 
 | **Database** | SQLite | Zero-config, single-file local relational database (`backend/data/mineatlas.db`) |
 | **ORM** | SQLAlchemy 2.0 | Type-safe declarative Python models |
 | **Database Migrations** | Alembic | Version-controlled database schema migrations |
-| **HTTP Client** | httpx | Upstream API communication and audit tooling |
-| **Backend Testing** | Pytest | Automated endpoint and schema test suite |
+| **HTTP Client** | httpx | Upstream API communication with in-process token bucket rate limiter |
+| **Backend Testing** | Pytest | Automated endpoint, rate limiter, normalizer, and ingestion test suite |
 | **Frontend Framework** | React 18 + TypeScript | UI component library with static types |
 | **Frontend Build Tool** | Vite | Ultra-fast local development & bundling |
 | **Frontend Styling** | Tailwind CSS | Utility-first dark Minecraft exploration theme |
@@ -62,7 +63,7 @@ cd backend
 alembic upgrade head
 cd ..
 
-# 5. Run the complete backend test suite
+# 5. Run the complete backend test suite (39 tests)
 PYTHONPATH=backend pytest backend/tests
 
 # 6. Start the FastAPI development server
@@ -71,18 +72,25 @@ uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8000
 
 The backend is live at:
 - Health check: [http://127.0.0.1:8000/api/health](http://127.0.0.1:8000/api/health)
+- Development Sync Status: [http://127.0.0.1:8000/api/development/sync-status](http://127.0.0.1:8000/api/development/sync-status)
 - Interactive API Docs (Swagger): [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ---
 
-### 2. Running the API Data Audit (Optional)
+### 2. Running Data Ingestion & Sync
 
-To execute the Phase 2 Astroworld API audit tool:
+To synchronize upstream Astroworld data into the local SQLite cache and derive graph edges:
 
 ```bash
-cd ~/Desktop/mineatlas/backend
-python -m app.scripts.audit_astroworld
+cd ~/Desktop/mineatlas
+source venv/bin/activate
+cd backend
+python -m app.scripts.sync_astroworld
 ```
+
+* Contacts all 9 approved Astroworld collection endpoints sequentially.
+* Gated by the internal **50 requests per minute** token bucket rate limiter.
+* Idempotently upserts records without duplicates and derives knowledge graph edges.
 
 ---
 
@@ -121,7 +129,8 @@ mineatlas/
 │   ├── SCOPE.md            # Scope boundaries (Java Edition only, rate limits)
 │   ├── ARCHITECTURE.md     # Architecture overview & data flow diagrams
 │   ├── API_DATA_AUDIT.md   # Empirical findings from Phase 2 Astroworld audit
-│   └── DATA_MODEL.md       # Canonical SQLite database schema and graph design
+│   ├── DATA_MODEL.md       # Canonical SQLite database schema and graph design
+│   └── INGESTION_AND_SYNC.md # Phase 4 ingestion, rate limiting & sync documentation
 │
 ├── backend/
 │   ├── requirements.txt    # FastAPI, Uvicorn, Pytest, httpx, SQLAlchemy, Alembic
@@ -134,47 +143,23 @@ mineatlas/
 │   ├── app/
 │   │   ├── __init__.py
 │   │   ├── main.py         # FastAPI application entrypoint & CORS setup
-│   │   ├── config.py       # Host, port, DB, and CORS configuration
-│   │   ├── clients/        # Upstream Astroworld API client
-│   │   ├── services/       # Audit & background services
-│   │   ├── scripts/        # CLI scripts (audit_astroworld.py)
+│   │   ├── config.py       # Configuration & rate limiting parameters
+│   │   ├── clients/        # Rate-limited AstroworldClient
+│   │   ├── services/       # Ingestion, rate limiter, normalizers & graph derivation
+│   │   │   ├── rate_limiter.py
+│   │   │   ├── normalizers.py
+│   │   │   ├── relationship_derivation.py
+│   │   │   ├── ingestion_service.py
+│   │   │   └── api_audit_service.py
+│   │   ├── scripts/        # CLI scripts (sync_astroworld.py, audit_astroworld.py)
 │   │   ├── db/             # Database connection, base classes, and ORM models
-│   │   │   ├── base.py     # DeclarativeBase, ProvenanceMixin, TimestampMixin
-│   │   │   ├── session.py  # SQLite foreign key pragma listener & sessionmaker
-│   │   │   └── models/     # Canonical entity models (Biome, Mob, Item, RelationEdge, etc.)
-│   │   └── routers/
-│   │       ├── __init__.py
-│   │       └── health.py   # GET /api/health implementation
+│   │   └── routers/        # Health and development routers
 │   ├── data/
+│   │   ├── mineatlas.db    # Local SQLite database (ignored by Git)
 │   │   └── raw_snapshots/  # Local JSON snapshots (ignored by Git)
-│   └── tests/
-│       ├── test_health.py             # Phase 1 health check tests
-│       ├── test_astroworld_client.py  # Phase 2 client tests
-│       ├── test_api_audit_service.py  # Phase 2 audit service tests
-│       └── test_database_schema.py    # Phase 3 schema, migration & FK tests
+│   └── tests/              # 39 Pytest automated unit & integration tests
 │
-├── frontend/
-│   ├── package.json        # NPM dependencies & scripts
-│   ├── vite.config.ts      # Vite configuration
-│   ├── tsconfig.json       # TypeScript configuration
-│   ├── tailwind.config.js  # Tailwind CSS dark theme configuration
-│   ├── postcss.config.js   # PostCSS configuration for Tailwind
-│   ├── .env.example        # Frontend environment variables template
-│   ├── index.html          # HTML entrypoint
-│   └── src/
-│       ├── main.tsx        # React root mounting
-│       ├── App.tsx         # Root component with React Router
-│       ├── index.css       # Tailwind directives & base styles
-│       ├── vite-env.d.ts   # Vite client type declarations
-│       ├── api/
-│       │   └── mineatlasApi.ts   # Dedicated backend API client
-│       ├── components/
-│       │   └── layout/
-│       │       ├── Header.tsx        # Navigation header & Phase badge
-│       │       └── PageContainer.tsx # Responsive container wrapper
-│       └── pages/
-│           └── HomePage.tsx          # Landing view with live health status
-│
+├── frontend/               # React + TypeScript + Vite + Tailwind CSS frontend
 └── .github/
     └── workflows/
         └── ci.yml          # GitHub Actions CI workflow (tests + build)
@@ -186,9 +171,10 @@ mineatlas/
 
 1. **Minecraft Java Edition Exclusively:** No Bedrock edition data or conflicting game mechanics.
 2. **Zero Browser-to-Astroworld Calls:** The frontend only speaks to our FastAPI backend.
-3. **No Heavy Database Infrastructure:** Runs natively on Linux Mint without Docker, Redis, PostgreSQL, or Neo4j. Powered by a local SQLite database (`backend/data/mineatlas.db`).
-4. **Items & Key Blocks:** Focuses on functional blocks and items rather than every single block variation.
-5. **Clear Provenance:** Every database record tracks `source_type` (`astroworld_api`, `curated`, or `calculated`), `source_url`, `game_version`, and `last_verified_at`.
+3. **Internal 50 RPM Rate Limiter:** Local in-process token-bucket limiter enforces 50 req/min strictly.
+4. **No Heavy Database Infrastructure:** Runs natively on Linux Mint without Docker, Redis, PostgreSQL, or Neo4j. Powered by local SQLite (`backend/data/mineatlas.db`).
+5. **Items & Key Blocks:** Focuses on functional blocks and items rather than every single block variation.
+6. **Clear Provenance:** Every database record tracks `source_type` (`astroworld_api`, `curated`, or `calculated`), `source_url`, `game_version`, and `last_verified_at`.
 
 ---
 

@@ -2,12 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import CORS_ORIGINS
-from app.routers import health
+from app.routers import development, health
 
 app = FastAPI(
     title="MineAtlas API",
     description="Backend API for MineAtlas - Minecraft Java Edition Atlas & Knowledge Graph Explorer",
-    version="0.1.0",
+    version="0.4.0",
 )
 
 # Configure CORS only for local Vite frontend URL
@@ -19,8 +19,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register health check router under /api
+# Register routers under /api
 app.include_router(health.router, prefix="/api", tags=["health"])
+app.include_router(development.router, prefix="/api", tags=["development"])
 
 
 @app.get("/")
@@ -29,4 +30,3 @@ def root() -> dict[str, str]:
     return {
         "message": "Welcome to MineAtlas API. Visit /api/health for status or /docs for API documentation."
     }
-
