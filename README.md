@@ -6,18 +6,17 @@ MineAtlas is an interactive explorer for Minecraft Java Edition that connects bi
 
 ---
 
-## Current Status: Phase 4 (Data Ingestion & Knowledge Graph Caching)
+## Current Status: Phase 5 (FastAPI Query API & Graph Exploration)
 
-MineAtlas has implemented a robust, rate-limited data ingestion pipeline with local SQLite caching and knowledge graph edge derivation:
-- **Phase 1 (Foundation):** Runnable FastAPI backend, React + Vite frontend, and basic CI.
+MineAtlas provides a fast, stable, and typed REST API over its local SQLite cache (`backend/data/mineatlas.db`):
+- **Phase 1 (Foundation):** Runnable FastAPI backend, React + Vite frontend, and CI.
 - **Phase 2 (API Audit):** Safe, rate-limited audit tool (`python -m app.scripts.audit_astroworld`) verified all 9 Astroworld collection endpoints.
-- **Phase 3 (Database Schema):** SQLite database configured with SQLAlchemy ORM models and Alembic migrations across 16 canonical tables (including `mobs`, `biomes`, `items`, `structures`, `trades`, `farms`, and generic `relation_edges`).
-- **Phase 4 (Ingestion & Graph Caching):** Strict 50 req/min token-bucket rate limiter, idempotent upserts into SQLite (`backend/data/mineatlas.db`), probability normalization, `SyncRun` tracking, and automatic derivation of initial semantic graph edges (`SPAWNS_IN`, `DROPS`, `BREEDS_WITH`, `TAMED_WITH`, `FOUND_IN`, `LOCATED_IN`, `CONTAINS_LOOT`, `TRADED_BY`, `UNLOCKS`, `ADDED_IN`).
+- **Phase 3 (Database Schema):** SQLite database configured with SQLAlchemy ORM models and Alembic migrations across 16 canonical tables.
+- **Phase 4 (Ingestion & Graph Caching):** Strict 50 req/min rate limiter, idempotent SQLite caching, probability normalization, `SyncRun` tracking, and automatic derivation of 650 semantic graph edges.
+- **Phase 5 (FastAPI Query API):** Global multi-entity search, paginated and filterable explorer endpoints, supporting reference endpoints, localized graph-neighbour traversals (depth 1 & 2), and public cache status reporting. Reads strictly from SQLite.
 
 > [!NOTE]
 > **Planned for Later Phases:**
-> - **Public Backend Query APIs:** List/detail endpoints with filtering and pagination (Phase 5).
-> - **Global Search:** Fast multi-entity search across biomes, mobs, items, and structures (Phase 5).
 > - **Interactive Knowledge Graph Visualizer:** React + Cytoscape graph canvas (Phase 6).
 > - **Curated Farm Guides:** Handcrafted Java Edition farm blueprints with production metrics (Phase 7).
 
@@ -32,7 +31,7 @@ MineAtlas has implemented a robust, rate-limited data ingestion pipeline with lo
 | **ORM** | SQLAlchemy 2.0 | Type-safe declarative Python models |
 | **Database Migrations** | Alembic | Version-controlled database schema migrations |
 | **HTTP Client** | httpx | Upstream API communication with in-process token bucket rate limiter |
-| **Backend Testing** | Pytest | Automated endpoint, rate limiter, normalizer, and ingestion test suite |
+| **Backend Testing** | Pytest | Automated endpoint, rate limiter, normalizer, and ingestion test suite (60 tests) |
 | **Frontend Framework** | React 18 + TypeScript | UI component library with static types |
 | **Frontend Build Tool** | Vite | Ultra-fast local development & bundling |
 | **Frontend Styling** | Tailwind CSS | Utility-first dark Minecraft exploration theme |
@@ -63,7 +62,7 @@ cd backend
 alembic upgrade head
 cd ..
 
-# 5. Run the complete backend test suite (39 tests)
+# 5. Run the complete backend test suite (60 tests)
 PYTHONPATH=backend pytest backend/tests
 
 # 6. Start the FastAPI development server
@@ -71,13 +70,42 @@ uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8000
 ```
 
 The backend is live at:
-- Health check: [http://127.0.0.1:8000/api/health](http://127.0.0.1:8000/api/health)
-- Development Sync Status: [http://127.0.0.1:8000/api/development/sync-status](http://127.0.0.1:8000/api/development/sync-status)
 - Interactive API Docs (Swagger): [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- Health Check: [http://127.0.0.1:8000/api/health](http://127.0.0.1:8000/api/health)
+- Public Data Status: [http://127.0.0.1:8000/api/data-status](http://127.0.0.1:8000/api/data-status)
+- Development Sync Status: [http://127.0.0.1:8000/api/development/sync-status](http://127.0.0.1:8000/api/development/sync-status)
 
 ---
 
-### 2. Running Data Ingestion & Sync
+### 2. Primary API Endpoints Overview
+
+All endpoints read strictly from the local SQLite cache and never call upstream APIs:
+
+| Endpoint | Method | Purpose | Key Parameters / Filters |
+|---|:---:|---|---|
+| `/api/search` | `GET` | Global multi-entity search | `q`, `types`, `limit` |
+| `/api/mobs` | `GET` | Paginated Minecraft mobs | `page`, `page_size`, `search`, `type`, `category`, `tameable`, `breedable` |
+| `/api/mobs/{mob_id}` | `GET` | Detailed mob record & stats | `mob_id` |
+| `/api/biomes` | `GET` | Paginated Minecraft biomes | `page`, `page_size`, `search`, `dimension`, `category`, `rarity` |
+| `/api/biomes/{biome_id}` | `GET` | Single biome detail | `biome_id` |
+| `/api/items` | `GET` | Key items and functional blocks | `page`, `page_size`, `search`, `category`, `enchantable` |
+| `/api/items/{item_id}` | `GET` | Single item detail | `item_id` |
+| `/api/structures` | `GET` | World structures | `page`, `page_size`, `search`, `dimension`, `category`, `rarity` |
+| `/api/structures/{structure_id}` | `GET` | Single structure detail | `structure_id` |
+| `/api/enchantments` | `GET` | Equipment enchantments | `page`, `page_size`, `search`, `category`, `treasure_only` |
+| `/api/achievements` | `GET` | Advancements / achievements | `page`, `page_size`, `search`, `tab` |
+| `/api/versions` | `GET` | Java Edition version history | `page`, `page_size`, `search`, `release_type` |
+| `/api/commands` | `GET` | Server and in-game commands | `page`, `page_size`, `search`, `category` |
+| `/api/trades` | `GET` | Villager trade transactions | `page`, `page_size`, `search`, `profession_id`, `level` |
+| `/api/villager-professions` | `GET` | 13 villager professions | `page`, `page_size`, `search` |
+| `/api/graph/neighbors/{type}/{id}` | `GET` | Localized graph traversal | `depth` (1 or 2), `relationship_types`, `limit` |
+| `/api/data-status` | `GET` | Cache health & totals | — |
+
+For complete query documentation, see [`docs/BACKEND_QUERY_API.md`](docs/BACKEND_QUERY_API.md).
+
+---
+
+### 3. Running Data Ingestion & Sync (Offline CLI)
 
 To synchronize upstream Astroworld data into the local SQLite cache and derive graph edges:
 
@@ -94,7 +122,7 @@ python -m app.scripts.sync_astroworld
 
 ---
 
-### 3. Frontend Setup & Run
+### 4. Frontend Setup & Run
 
 Open a second terminal window for the frontend:
 
@@ -130,7 +158,8 @@ mineatlas/
 │   ├── ARCHITECTURE.md     # Architecture overview & data flow diagrams
 │   ├── API_DATA_AUDIT.md   # Empirical findings from Phase 2 Astroworld audit
 │   ├── DATA_MODEL.md       # Canonical SQLite database schema and graph design
-│   └── INGESTION_AND_SYNC.md # Phase 4 ingestion, rate limiting & sync documentation
+│   ├── INGESTION_AND_SYNC.md # Phase 4 ingestion, rate limiting & sync documentation
+│   └── BACKEND_QUERY_API.md  # Phase 5 query API reference & parameter guide
 │
 ├── backend/
 │   ├── requirements.txt    # FastAPI, Uvicorn, Pytest, httpx, SQLAlchemy, Alembic
@@ -138,26 +167,24 @@ mineatlas/
 │   ├── alembic.ini         # Alembic migration configuration
 │   ├── pytest.ini          # Pytest configuration
 │   ├── alembic/            # Database schema migrations
-│   │   ├── env.py
-│   │   └── versions/
 │   ├── app/
-│   │   ├── __init__.py
-│   │   ├── main.py         # FastAPI application entrypoint & CORS setup
+│   │   ├── main.py         # FastAPI application entrypoint & router registration
 │   │   ├── config.py       # Configuration & rate limiting parameters
 │   │   ├── clients/        # Rate-limited AstroworldClient
-│   │   ├── services/       # Ingestion, rate limiter, normalizers & graph derivation
+│   │   ├── services/       # Query, graph, ingestion, and rate-limiting services
+│   │   │   ├── query_service.py
+│   │   │   ├── graph_service.py
 │   │   │   ├── rate_limiter.py
 │   │   │   ├── normalizers.py
-│   │   │   ├── relationship_derivation.py
-│   │   │   ├── ingestion_service.py
-│   │   │   └── api_audit_service.py
-│   │   ├── scripts/        # CLI scripts (sync_astroworld.py, audit_astroworld.py)
+│   │   │   └── ingestion_service.py
+│   │   ├── schemas/        # Pydantic v2 response & request validation models
+│   │   ├── routers/        # Mobs, biomes, items, structures, reference, graph, search
 │   │   ├── db/             # Database connection, base classes, and ORM models
-│   │   └── routers/        # Health and development routers
+│   │   └── scripts/        # CLI scripts (sync_astroworld.py, audit_astroworld.py)
 │   ├── data/
 │   │   ├── mineatlas.db    # Local SQLite database (ignored by Git)
 │   │   └── raw_snapshots/  # Local JSON snapshots (ignored by Git)
-│   └── tests/              # 39 Pytest automated unit & integration tests
+│   └── tests/              # 60 Pytest automated unit & integration tests
 │
 ├── frontend/               # React + TypeScript + Vite + Tailwind CSS frontend
 └── .github/
@@ -171,9 +198,9 @@ mineatlas/
 
 1. **Minecraft Java Edition Exclusively:** No Bedrock edition data or conflicting game mechanics.
 2. **Zero Browser-to-Astroworld Calls:** The frontend only speaks to our FastAPI backend.
-3. **Internal 50 RPM Rate Limiter:** Local in-process token-bucket limiter enforces 50 req/min strictly.
-4. **No Heavy Database Infrastructure:** Runs natively on Linux Mint without Docker, Redis, PostgreSQL, or Neo4j. Powered by local SQLite (`backend/data/mineatlas.db`).
-5. **Items & Key Blocks:** Focuses on functional blocks and items rather than every single block variation.
+3. **100% Local SQLite Reads:** Normal user requests read from local SQLite and never trigger upstream network traffic.
+4. **Internal 50 RPM Rate Limiter:** Local in-process token-bucket limiter protects upstream capacity during offline syncs.
+5. **No Heavy Database Infrastructure:** Runs natively on Linux Mint without Docker, Redis, PostgreSQL, or Neo4j. Powered by local SQLite (`backend/data/mineatlas.db`).
 6. **Clear Provenance:** Every database record tracks `source_type` (`astroworld_api`, `curated`, or `calculated`), `source_url`, `game_version`, and `last_verified_at`.
 
 ---
