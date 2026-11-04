@@ -1,0 +1,40 @@
+# Python virtual environment
+venv/
+.venv/
+env/
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+coverage/
+
+# Environment files (never commit real secrets)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# SQLite database files (for future phases)
+*.db
+*.sqlite
+*.sqlite3
+
+# Node & Frontend build artifacts
+node_modules/
+dist/
+dist-ssr/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE files (ignore user settings, allow future intentional shared settings)
+.vscode/*
+!.vscode/settings.json
+.idea/
+

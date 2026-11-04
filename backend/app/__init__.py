@@ -1,0 +1,2 @@
+"""MineAtlas Backend Application Package."""
+
