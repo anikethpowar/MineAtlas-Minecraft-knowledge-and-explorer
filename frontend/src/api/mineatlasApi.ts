@@ -5,10 +5,27 @@
  * made by the MineAtlas frontend.
  *
  * CRITICAL ARCHITECTURAL RULES:
- * 1. The frontend MUST ONLY communicate with our FastAPI backend.
+ * 1. The frontend MUST ONLY communicate with our FastAPI backend (/api/*).
  * 2. Never allow the frontend/browser to call external APIs (such as Astroworld) directly.
  * 3. All external data ingestion and rate-limiting happen strictly on the FastAPI backend.
+ * 4. Normal user navigation strictly queries local cached SQLite data.
  */
+
+import {
+  BiomeDetail,
+  BiomeListItem,
+  DataStatusResponse,
+  DetailResponse,
+  GraphNeighborsResponse,
+  ItemDetail,
+  ItemListItem,
+  MobDetail,
+  MobListItem,
+  PaginatedResponse,
+  SearchResponse,
+  StructureDetail,
+  StructureListItem,
+} from './types';
 
 export interface HealthResponse {
   status: string;
@@ -22,13 +39,25 @@ const API_BASE_URL: string =
   import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 /**
- * Fetches the backend health check payload from /api/health.
- *
- * @returns Promise<HealthResponse> parsed JSON response from the backend.
- * @throws Error if network fails or server returns a non-2xx status code.
+ * Internal generic fetch helper with standard error handling.
  */
-export async function getHealthStatus(): Promise<HealthResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/health`, {
+async function fetchJson<T>(endpoint: string, searchParams?: Record<string, string | number | boolean | null | undefined>): Promise<T> {
+  let url = `${API_BASE_URL}${endpoint}`;
+
+  if (searchParams) {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchParams)) {
+      if (value !== null && value !== undefined && value !== '') {
+        params.append(key, String(value));
+      }
+    }
+    const queryString = params.toString();
+    if (queryString) {
+      url += (url.includes('?') ? '&' : '?') + queryString;
+    }
+  }
+
+  const response = await fetch(url, {
     method: 'GET',
     headers: {
       Accept: 'application/json',
@@ -36,12 +65,154 @@ export async function getHealthStatus(): Promise<HealthResponse> {
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Backend returned HTTP ${response.status} (${response.statusText || 'Error'})`
-    );
+    let errorDetail = response.statusText || 'Unknown Error';
+    try {
+      const errorJson = await response.json();
+      if (errorJson && errorJson.detail) {
+        errorDetail = typeof errorJson.detail === 'string' ? errorJson.detail : JSON.stringify(errorJson.detail);
+      }
+    } catch {
+      // Ignore if body is not JSON
+    }
+    throw new Error(`API Error (${response.status}): ${errorDetail}`);
   }
 
-  const data: HealthResponse = await response.json();
-  return data;
+  return response.json() as Promise<T>;
 }
 
+/**
+ * Health check endpoint.
+ */
+export async function getHealthStatus(): Promise<HealthResponse> {
+  return fetchJson<HealthResponse>('/api/health');
+}
+
+/**
+ * Cache and ingestion freshness status.
+ */
+export async function getDataStatus(): Promise<DataStatusResponse> {
+  return fetchJson<DataStatusResponse>('/api/data-status');
+}
+
+/**
+ * Unified multi-entity search.
+ */
+export async function searchEntities(
+  q: string,
+  types?: string,
+  limit: number = 20
+): Promise<SearchResponse> {
+  return fetchJson<SearchResponse>('/api/search', {
+    q,
+    types,
+    limit,
+  });
+}
+
+/**
+ * Mobs explorer - list
+ */
+export async function getMobs(params?: {
+  page?: number;
+  page_size?: number;
+  search?: string;
+  type?: string;
+  category?: string;
+  tameable?: boolean;
+  breedable?: boolean;
+}): Promise<PaginatedResponse<MobListItem>> {
+  return fetchJson<PaginatedResponse<MobListItem>>('/api/mobs', params);
+}
+
+/**
+ * Mobs explorer - detail
+ */
+export async function getMobById(mobId: string): Promise<MobDetail> {
+  const res = await fetchJson<DetailResponse<MobDetail>>(`/api/mobs/${encodeURIComponent(mobId)}`);
+  return res.data;
+}
+
+/**
+ * Biomes explorer - list
+ */
+export async function getBiomes(params?: {
+  page?: number;
+  page_size?: number;
+  search?: string;
+  dimension?: string;
+  category?: string;
+  rarity?: string;
+}): Promise<PaginatedResponse<BiomeListItem>> {
+  return fetchJson<PaginatedResponse<BiomeListItem>>('/api/biomes', params);
+}
+
+/**
+ * Biomes explorer - detail
+ */
+export async function getBiomeById(biomeId: string): Promise<BiomeDetail> {
+  const res = await fetchJson<DetailResponse<BiomeDetail>>(`/api/biomes/${encodeURIComponent(biomeId)}`);
+  return res.data;
+}
+
+/**
+ * Items & Key Blocks explorer - list
+ */
+export async function getItems(params?: {
+  page?: number;
+  page_size?: number;
+  search?: string;
+  category?: string;
+  enchantable?: boolean;
+}): Promise<PaginatedResponse<ItemListItem>> {
+  return fetchJson<PaginatedResponse<ItemListItem>>('/api/items', params);
+}
+
+/**
+ * Items & Key Blocks explorer - detail
+ */
+export async function getItemById(itemId: string): Promise<ItemDetail> {
+  const res = await fetchJson<DetailResponse<ItemDetail>>(`/api/items/${encodeURIComponent(itemId)}`);
+  return res.data;
+}
+
+/**
+ * Structures explorer - list
+ */
+export async function getStructures(params?: {
+  page?: number;
+  page_size?: number;
+  search?: string;
+  dimension?: string;
+  category?: string;
+  rarity?: string;
+}): Promise<PaginatedResponse<StructureListItem>> {
+  return fetchJson<PaginatedResponse<StructureListItem>>('/api/structures', params);
+}
+
+/**
+ * Structures explorer - detail
+ */
+export async function getStructureById(structureId: string): Promise<StructureDetail> {
+  const res = await fetchJson<DetailResponse<StructureDetail>>(`/api/structures/${encodeURIComponent(structureId)}`);
+  return res.data;
+}
+
+/**
+ * Localized knowledge graph neighbors.
+ */
+export async function getGraphNeighbors(
+  entityType: string,
+  entityId: string,
+  depth: number = 1,
+  relationshipTypes?: string,
+  limit: number = 50
+): Promise<GraphNeighborsResponse> {
+  return fetchJson<GraphNeighborsResponse>(
+    `/api/graph/neighbors/${encodeURIComponent(entityType)}/${encodeURIComponent(entityId)}`,
+    {
+      depth,
+      relationship_types: relationshipTypes,
+      limit,
+    }
+  );
+}
