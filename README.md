@@ -13,17 +13,19 @@
 
 ## 1. Overview
 
-**MineAtlas** is a local-first web application and knowledge graph explorer for **Minecraft Java Edition**. 
+**MineAtlas** is a local-first web application and knowledge graph explorer for **Minecraft Java Edition**.
 
-Rather than serving as a passive data dump, MineAtlas models and reveals the interconnected nature of the Minecraft world. It allows players, technical builders, and survival enthusiasts to navigate semantic connections between mobs, drops, biomes, structures, villager trades, and technical farm designs:
+Rather than acting as a passive data dump, MineAtlas reveals meaningful connections across the Minecraft world. It helps players, technical builders, and survival enthusiasts explore relationships between mobs, drops, biomes, structures, villager trades, and technical farm designs.
 
-- $\text{Zombie} \xrightarrow{\text{DROPS}} \text{Rotten Flesh}$
-- $\text{Enderman} \xrightarrow{\text{SPAWNS\_IN}} \text{The End}$
-- $\text{Village} \xrightarrow{\text{FOUND\_IN}} \text{Plains}$
-- $\text{Iron Golem Farm} \xrightarrow{\text{REQUIRES}} \text{Villager Panic Mechanics}$
-- $\text{Bad Omen Raid Farm} \xrightarrow{\text{PRODUCES}} \text{Totem of Undying}$
+Examples:
 
-All user requests are served synchronously from an indexed local **SQLite cache**, providing instantaneous browsing with zero load placed on upstream servers.
+- `Zombie` → **DROPS** → `Rotten Flesh`
+- `Enderman` → **SPAWNS IN** → `The End`
+- `Village` → **FOUND IN** → `Plains`
+- `Iron Golem Farm` → **REQUIRES** → `Villager Panic Mechanics`
+- `Bad Omen Raid Farm` → **PRODUCES** → `Totem of Undying`
+
+All user requests are served from an indexed local **SQLite cache**, providing fast browsing without placing normal page-load traffic on upstream servers.
 
 ---
 
