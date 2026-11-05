@@ -80,34 +80,33 @@ MineAtlas enforces strict separation between user browsing and external API inte
 
 ```mermaid
 flowchart TD
-    subgraph Tier 1: Presentation Layer
-        UI["React 18 + TypeScript + Vite (:5173)\nTailwind CSS • Cytoscape.js • SVG Schematics"]
+    subgraph presentation["Tier 1: Presentation Layer"]
+        UI["React Frontend<br/>TypeScript · Vite · Tailwind CSS<br/>Cytoscape.js · SVG Schematics"]
     end
 
-    subgraph Tier 2: Application & Local Cache
-        API["FastAPI Backend (:8000)\nPydantic Schemas • CORS • Local Query Engine"]
-        DB[("SQLite Database (mineatlas.db)\nSQLAlchemy 2.0 • 16 Tables • Alembic")]
-        API <-->|Synchronous SQL Reads| DB
+    subgraph application["Tier 2: Application and Local Cache"]
+        API["FastAPI Backend<br/>Pydantic Schemas · CORS · Query Engine"]
+        DB[("SQLite Cache<br/>SQLAlchemy · Alembic")]
+        API <-->|"Local SQL queries"| DB
     end
 
-    subgraph Tier 3: Controlled Upstream Ingestion
-        CLI["Background CLI Sync & Seeders\nToken-Bucket Limiter (≤ 50 req/min)"]
-        AW["Astroworld Public API\n(api.astroworldmc.com)"]
-        CLI <-->|Throttled HTTPS Ingestion| AW
-        CLI -->|Idempotent Upsert & Edge Derivation| DB
+    subgraph ingestion["Tier 3: Controlled Data Ingestion"]
+        SYNC["Manual Sync and Seed Commands<br/>Token-Bucket Limiter: maximum 50 requests per minute"]
+        AW["Astroworld API<br/>api.astroworldmc.com"]
+        SYNC <-->|"Rate-limited HTTPS sync"| AW
+        SYNC -->|"Idempotent upsert and edge derivation"| DB
     end
 
-    UI <-->|HTTP REST /api/* (Zero External Calls)| API
+    UI <-->|"Local MineAtlas API requests"| API
 
-    classDef presentation fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
-    classDef application fill:#022c22,stroke:#10b981,stroke-width:2px,color:#f8fafc;
-    classDef upstream fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef frontend fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc
+    classDef backend fill:#022c22,stroke:#10b981,stroke-width:2px,color:#f8fafc
+    classDef upstream fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc
 
-    class UI presentation;
-    class API,DB application;
-    class CLI,AW upstream;
+    class UI frontend
+    class API,DB backend
+    class SYNC,AW upstream
 ```
-
 > [!IMPORTANT]
 > **Zero Browser Leaks:** Normal user navigation and searches never make outbound network connections to Astroworld or third-party APIs. All queries are served locally from SQLite.
 

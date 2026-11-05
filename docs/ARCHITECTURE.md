@@ -52,32 +52,32 @@ MineAtlas implements a full three-tier architecture that completely isolates bro
 
 ```mermaid
 flowchart TD
-    subgraph Tier 1: Presentation
-        UI["React 18 + TypeScript + Vite (:5173)\nTailwind CSS • Cytoscape.js • SVG Schematics"]
+    subgraph presentation["Tier 1: Presentation Layer"]
+        UI["React Frontend<br/>TypeScript · Vite · Tailwind CSS<br/>Cytoscape.js · SVG Schematics"]
     end
 
-    subgraph Tier 2: Application & Cache
-        API["FastAPI Backend (:8000)\nTyped REST Endpoints • Pydantic Schemas • CORS"]
-        DB[("SQLite Local Cache & DB\nSQLAlchemy ORM • Alembic Migrations")]
-        API <-->|SQL Queries| DB
+    subgraph application["Tier 2: Application and Local Cache"]
+        API["FastAPI Backend<br/>Pydantic Schemas · CORS · Query Engine"]
+        DB[("SQLite Cache<br/>SQLAlchemy · Alembic")]
+        API <-->|"Local SQL queries"| DB
     end
 
-    subgraph Tier 3: Upstream Ingestion
-        SYNC["Background CLI Ingestion & Seeder\nToken-Bucket Limiter (≤ 50 req/min)"]
-        AW["Astroworld Public API\n(api.astroworldmc.com)"]
-        SYNC <-->|Rate-Limited HTTPS| AW
-        SYNC -->|Idempotent Upsert| DB
+    subgraph ingestion["Tier 3: Controlled Data Ingestion"]
+        SYNC["Manual Sync and Seed Commands<br/>Token-Bucket Limiter: maximum 50 requests per minute"]
+        AW["Astroworld API<br/>api.astroworldmc.com"]
+        SYNC <-->|"Rate-limited HTTPS sync"| AW
+        SYNC -->|"Idempotent upsert and edge derivation"| DB
     end
 
-    UI <-->|HTTP / JSON REST (/api/*)| API
+    UI <-->|"Local MineAtlas API requests"| API
 
-    classDef presentation fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
-    classDef application fill:#022c22,stroke:#10b981,stroke-width:2px,color:#f8fafc;
-    classDef upstream fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef frontend fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc
+    classDef backend fill:#022c22,stroke:#10b981,stroke-width:2px,color:#f8fafc
+    classDef upstream fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc
 
-    class UI presentation;
-    class API,DB application;
-    class SYNC,AW upstream;
+    class UI frontend
+    class API,DB backend
+    class SYNC,AW upstream
 ```
 
 ---
