@@ -71,7 +71,15 @@ class GraphService:
             if item:
                 return True, item.name, item.version_added
         elif e_type in ("structure", "structures"):
-            struct = self.session.scalar(select(Structure).where(func.lower(Structure.id) == e_id))
+            struct = self.session.scalar(
+                select(Structure).where(
+                    or_(
+                        func.lower(Structure.id) == e_id,
+                        func.lower(Structure.id) == e_id.replace("_", "-"),
+                        func.lower(Structure.id) == e_id.replace("-", "_"),
+                    )
+                )
+            )
             if struct:
                 return True, struct.name, struct.version_added
         elif e_type in ("enchantment", "enchantments"):
@@ -356,6 +364,18 @@ class GraphService:
                     "message": f"Root entity of type '{entity_type}' with ID '{entity_id}' was not found in the local MineAtlas cache.",
                 },
             )
+
+        if clean_type in ("structure", "structures"):
+            struct = self.session.scalar(
+                select(Structure).where(
+                    or_(
+                        func.lower(Structure.id) == clean_id,
+                        func.lower(Structure.id) == clean_id.replace("_", "-"),
+                    )
+                )
+            )
+            if struct:
+                clean_id = struct.id.lower()
 
         # Canonicalize root node
         root_info = GraphRoot(

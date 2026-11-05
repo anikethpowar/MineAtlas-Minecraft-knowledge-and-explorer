@@ -87,7 +87,7 @@ export const HomePage: React.FC = () => {
         <div className="relative z-10 max-w-3xl">
           <div className="flex flex-wrap items-center gap-2.5 mb-4">
             <span className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-              Phase 6: Core Explorer
+              Phase 7: Knowledge Graph
             </span>
             <EditionBadge edition="Java Edition" />
             <DataFreshnessIndicator status={dataStatus} loading={loadingStatus} />
@@ -126,6 +126,13 @@ export const HomePage: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
             </button>
+            <Link
+              to="/graph"
+              className="px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-mc-border text-slate-200 hover:text-emerald-300 font-semibold text-sm transition-colors flex items-center justify-center gap-2 shrink-0"
+            >
+              <span>Graph Explorer</span>
+              <span>&rarr;</span>
+            </Link>
           </form>
         </div>
       </section>

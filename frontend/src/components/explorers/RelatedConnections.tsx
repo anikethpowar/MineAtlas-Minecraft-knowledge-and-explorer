@@ -80,10 +80,25 @@ export const RelatedConnections: React.FC<RelatedConnectionsProps> = ({
             )}
           </h3>
           <p className="text-xs text-mc-textMuted mt-0.5">
-            Derived relationships cached in local SQLite (Phase 7 will introduce an interactive visual graph canvas)
+            Derived relationships cached in local SQLite. Explore with interactive visual canvas.
           </p>
         </div>
-        <SourceBadge sourceType="calculated" />
+        <div className="flex items-center gap-2">
+          <Link
+            to={`/graph?type=${encodeURIComponent(entityType)}&id=${encodeURIComponent(entityId)}&depth=1`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow transition-colors"
+            title="Open interactive Cytoscape knowledge graph"
+          >
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="6" cy="6" r="2.5" />
+              <circle cx="18" cy="18" r="2.5" />
+              <circle cx="18" cy="6" r="2.5" />
+              <path strokeLinecap="round" d="M8.5 7.5l7 3M8.5 6h7M18 8.5v7" />
+            </svg>
+            <span>Explore connections</span>
+          </Link>
+          <SourceBadge sourceType="calculated" />
+        </div>
       </div>
 
       {loading && (

@@ -7,6 +7,7 @@ import AboutDataPage from './pages/AboutDataPage';
 import BiomeDetailPage from './pages/BiomeDetailPage';
 import BiomesPage from './pages/BiomesPage';
 import HomePage from './pages/HomePage';
+import GraphPage from './pages/GraphPage';
 import ItemDetailPage from './pages/ItemDetailPage';
 import ItemsPage from './pages/ItemsPage';
 import MobDetailPage from './pages/MobDetailPage';
@@ -30,6 +31,7 @@ export const App: React.FC = () => {
         <PageContainer>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/graph" element={<GraphPage />} />
             <Route path="/search" element={<SearchPage />} />
 
             {/* Mobs Explorer */}

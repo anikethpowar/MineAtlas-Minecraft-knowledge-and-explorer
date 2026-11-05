@@ -16,6 +16,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
     { name: 'Biomes', path: '/biomes' },
     { name: 'Items & Blocks', path: '/items' },
     { name: 'Structures', path: '/structures' },
+    { name: 'Graph Explorer', path: '/graph' },
     { name: 'Search', path: '/search' },
     { name: 'About Data', path: '/about-data' },
   ];
@@ -113,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
 
             <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Core Explorer
+              Graph Explorer
             </span>
 
             {/* Mobile menu button for small screens */}

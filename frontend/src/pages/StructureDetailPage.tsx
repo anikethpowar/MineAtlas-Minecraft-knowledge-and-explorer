@@ -80,12 +80,22 @@ export const StructureDetailPage: React.FC = () => {
           <span>/</span>
           <span className="text-slate-300 font-medium">{structure.name}</span>
         </div>
-        <Link
-          to="/structures"
-          className="px-3 py-1 rounded bg-slate-900 border border-mc-border text-slate-300 hover:text-white transition-colors"
-        >
-          &larr; All Structures
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to={`/graph?type=structure&id=${encodeURIComponent(structure.id)}&depth=1`}
+            className="px-3 py-1 rounded bg-emerald-600/90 hover:bg-emerald-500 border border-emerald-500/50 text-white font-medium transition-colors flex items-center gap-1.5"
+            title="Explore connections in interactive knowledge graph"
+          >
+            <span>Explore connections</span>
+            <span>&rarr;</span>
+          </Link>
+          <Link
+            to="/structures"
+            className="px-3 py-1 rounded bg-slate-900 border border-mc-border text-slate-300 hover:text-white transition-colors"
+          >
+            &larr; All Structures
+          </Link>
+        </div>
       </div>
 
       {/* Entity Title Header */}

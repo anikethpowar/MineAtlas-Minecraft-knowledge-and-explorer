@@ -6,19 +6,21 @@ MineAtlas is an interactive explorer for Minecraft Java Edition that connects bi
 
 ---
 
-## Current Status: Phase 5 (FastAPI Query API & Graph Exploration)
+## Current Status: Phase 7 (Interactive Cytoscape.js Knowledge Graph Explorer)
 
-MineAtlas provides a fast, stable, and typed REST API over its local SQLite cache (`backend/data/mineatlas.db`):
+MineAtlas provides a fast, stable, and typed REST API over its local SQLite cache (`backend/data/mineatlas.db`) and an interactive React frontend:
 - **Phase 1 (Foundation):** Runnable FastAPI backend, React + Vite frontend, and CI.
 - **Phase 2 (API Audit):** Safe, rate-limited audit tool (`python -m app.scripts.audit_astroworld`) verified all 9 Astroworld collection endpoints.
 - **Phase 3 (Database Schema):** SQLite database configured with SQLAlchemy ORM models and Alembic migrations across 16 canonical tables.
 - **Phase 4 (Ingestion & Graph Caching):** Strict 50 req/min rate limiter, idempotent SQLite caching, probability normalization, `SyncRun` tracking, and automatic derivation of 650 semantic graph edges.
 - **Phase 5 (FastAPI Query API):** Global multi-entity search, paginated and filterable explorer endpoints, supporting reference endpoints, localized graph-neighbour traversals (depth 1 & 2), and public cache status reporting. Reads strictly from SQLite.
+- **Phase 6 (Core Frontend Explorer):** Full React + Tailwind browser explorer for Mobs, Biomes, Items & Key Blocks (curated 100 catalog), Structures, Global Search, and data transparency.
+- **Phase 7 (Interactive Knowledge Graph Explorer):** Signature Cytoscape.js visual graph canvas (`/graph`) with shape-coded entity nodes, directed relationship arrows, deterministic "Why connected?" explanations, client-side predicate filtering, localized 1-2 hop depth radius, and an accessible Relationship List alternative view.
 
 > [!NOTE]
 > **Planned for Later Phases:**
-> - **Interactive Knowledge Graph Visualizer:** React + Cytoscape graph canvas (Phase 6).
-> - **Curated Farm Guides:** Handcrafted Java Edition farm blueprints with production metrics (Phase 7).
+> - **Curated Farm Guides:** Handcrafted Java Edition farm blueprints with production metrics and graph relationships (Phase 8).
+> - **World Atlas & Calculators:** Spawn mechanics and world reference tools (Phase 9).
 
 ---
 
@@ -33,9 +35,10 @@ MineAtlas provides a fast, stable, and typed REST API over its local SQLite cach
 | **HTTP Client** | httpx | Upstream API communication with in-process token bucket rate limiter |
 | **Backend Testing** | Pytest | Automated endpoint, rate limiter, normalizer, and ingestion test suite (60 tests) |
 | **Frontend Framework** | React 18 + TypeScript | UI component library with static types |
+| **Graph Visualization** | Cytoscape.js | High-performance directed graph canvas with concentric layout |
 | **Frontend Build Tool** | Vite | Ultra-fast local development & bundling |
 | **Frontend Styling** | Tailwind CSS | Utility-first dark Minecraft exploration theme |
-| **Routing** | React Router DOM | Client-side routing |
+| **Routing** | React Router DOM | Client-side routing with URL query state persistence |
 
 ---
 
@@ -159,7 +162,8 @@ mineatlas/
 │   ├── API_DATA_AUDIT.md   # Empirical findings from Phase 2 Astroworld audit
 │   ├── DATA_MODEL.md       # Canonical SQLite database schema and graph design
 │   ├── INGESTION_AND_SYNC.md # Phase 4 ingestion, rate limiting & sync documentation
-│   └── BACKEND_QUERY_API.md  # Phase 5 query API reference & parameter guide
+│   ├── BACKEND_QUERY_API.md  # Phase 5 query API reference & parameter guide
+│   └── GRAPH_EXPLORER.md     # Phase 7 Cytoscape.js Knowledge Graph Explorer guide
 │
 ├── backend/
 │   ├── requirements.txt    # FastAPI, Uvicorn, Pytest, httpx, SQLAlchemy, Alembic

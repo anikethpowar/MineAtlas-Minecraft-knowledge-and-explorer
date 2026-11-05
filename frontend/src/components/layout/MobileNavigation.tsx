@@ -40,6 +40,18 @@ export const MobileNavigation: React.FC = () => {
       ),
     },
     {
+      name: 'Graph',
+      path: '/graph',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <circle cx="6" cy="6" r="2.5" strokeWidth="2" />
+          <circle cx="18" cy="18" r="2.5" strokeWidth="2" />
+          <circle cx="18" cy="6" r="2.5" strokeWidth="2" />
+          <path strokeLinecap="round" strokeWidth="2" d="M8.5 7.5l7 3M8.5 6h7M18 8.5v7" />
+        </svg>
+      ),
+    },
+    {
       name: 'Search',
       path: '/search',
       icon: (

@@ -62,12 +62,22 @@ export const ItemDetailPage: React.FC = () => {
           <span>/</span>
           <span className="text-slate-300 font-medium">{item.name}</span>
         </div>
-        <Link
-          to="/items"
-          className="px-3 py-1 rounded bg-slate-900 border border-mc-border text-slate-300 hover:text-white transition-colors"
-        >
-          &larr; All Items &amp; Blocks
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to={`/graph?type=item&id=${encodeURIComponent(item.id)}&depth=1`}
+            className="px-3 py-1 rounded bg-emerald-600/90 hover:bg-emerald-500 border border-emerald-500/50 text-white font-medium transition-colors flex items-center gap-1.5"
+            title="Explore connections in interactive knowledge graph"
+          >
+            <span>Explore connections</span>
+            <span>&rarr;</span>
+          </Link>
+          <Link
+            to="/items"
+            className="px-3 py-1 rounded bg-slate-900 border border-mc-border text-slate-300 hover:text-white transition-colors"
+          >
+            &larr; All Items &amp; Blocks
+          </Link>
+        </div>
       </div>
 
       {/* Entity Title Header */}

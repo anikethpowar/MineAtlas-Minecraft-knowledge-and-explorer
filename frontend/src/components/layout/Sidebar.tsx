@@ -58,6 +58,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
       count: '24 structures',
     },
     {
+      name: 'Graph Explorer',
+      path: '/graph',
+      icon: (
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <circle cx="6" cy="6" r="2.5" strokeWidth="2" />
+          <circle cx="18" cy="18" r="2.5" strokeWidth="2" />
+          <circle cx="18" cy="6" r="2.5" strokeWidth="2" />
+          <path strokeLinecap="round" strokeWidth="2" d="M8.5 7.5l7 3M8.5 6h7M18 8.5v7" />
+        </svg>
+      ),
+      count: 'Cytoscape.js',
+    },
+    {
       name: 'Global Search',
       path: '/search',
       icon: (

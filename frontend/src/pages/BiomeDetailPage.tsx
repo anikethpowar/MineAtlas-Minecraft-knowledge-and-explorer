@@ -73,12 +73,22 @@ export const BiomeDetailPage: React.FC = () => {
           <span>/</span>
           <span className="text-slate-300 font-medium">{biome.name}</span>
         </div>
-        <Link
-          to="/biomes"
-          className="px-3 py-1 rounded bg-slate-900 border border-mc-border text-slate-300 hover:text-white transition-colors"
-        >
-          &larr; All Biomes
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to={`/graph?type=biome&id=${encodeURIComponent(biome.id)}&depth=1`}
+            className="px-3 py-1 rounded bg-emerald-600/90 hover:bg-emerald-500 border border-emerald-500/50 text-white font-medium transition-colors flex items-center gap-1.5"
+            title="Explore connections in interactive knowledge graph"
+          >
+            <span>Explore connections</span>
+            <span>&rarr;</span>
+          </Link>
+          <Link
+            to="/biomes"
+            className="px-3 py-1 rounded bg-slate-900 border border-mc-border text-slate-300 hover:text-white transition-colors"
+          >
+            &larr; All Biomes
+          </Link>
+        </div>
       </div>
 
       {/* Entity Title Header */}
