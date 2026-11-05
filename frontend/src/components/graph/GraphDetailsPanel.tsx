@@ -25,6 +25,7 @@ export const GraphDetailsPanel: React.FC<GraphDetailsPanelProps> = ({
     if (t === 'biome') return `/biomes/${encodeURIComponent(id)}`;
     if (t === 'item') return `/items/${encodeURIComponent(id)}`;
     if (t === 'structure') return `/structures/${encodeURIComponent(id)}`;
+    if (t === 'farm') return `/farms/${encodeURIComponent(id)}`;
     return null;
   };
 
@@ -38,6 +39,10 @@ export const GraphDetailsPanel: React.FC<GraphDetailsPanelProps> = ({
         return 'bg-sky-500/10 text-sky-400 border-sky-500/30';
       case 'structure':
         return 'bg-amber-500/10 text-amber-300 border-amber-500/30';
+      case 'farm':
+        return 'bg-orange-500/10 text-orange-400 border-orange-500/30';
+      case 'mechanic':
+        return 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30';
       case 'enchantment':
         return 'bg-purple-500/10 text-purple-300 border-purple-500/30';
       case 'version':

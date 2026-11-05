@@ -223,3 +223,93 @@ export interface GraphNeighborsResponse {
   metadata: GraphMetadata;
 }
 
+// ==================== CURATED FARM BLUEPRINTS ====================
+export interface FarmOutputItem {
+  item: string;
+  label: string;
+  rate: string;
+  is_primary: boolean;
+  note: string | null;
+}
+
+export interface FarmMaterialItem {
+  item: string;
+  amount: number;
+  category: string;
+  note: string | null;
+}
+
+export interface FarmBuildStep {
+  step_number: number;
+  title: string;
+  description: string;
+  why_it_matters: string | null;
+}
+
+export interface FarmTroubleshootingItem {
+  issue: string;
+  likely_cause: string;
+  suggested_check: string;
+}
+
+export interface FarmDiagramZone {
+  id: string;
+  label: string;
+  color?: string;
+}
+
+export interface FarmDiagramData {
+  type?: string;
+  zones: FarmDiagramZone[];
+}
+
+export interface FarmSourceReference {
+  title: string;
+  url: string | null;
+  note: string | null;
+}
+
+export interface FarmListItem {
+  id: string;
+  name: string;
+  category: string;
+  difficulty: string | null;
+  dimension: string;
+  estimated_output_per_hour: string | null;
+  summary: string | null;
+  compatibility_label: string | null;
+  source_type: string;
+  edition: string;
+  last_verified_at: string | null;
+}
+
+export interface FarmDetail {
+  id: string;
+  name: string;
+  category: string;
+  difficulty: string | null;
+  dimension: string;
+  summary: string | null;
+  description: string | null;
+  estimated_output_per_hour: string | null;
+  compatibility_label: string | null;
+  coverage_note: string | null;
+  safety_note: string | null;
+  maintenance_summary: string | null;
+  notes: string | null;
+  outputs: FarmOutputItem[];
+  prerequisites: string[];
+  materials: FarmMaterialItem[];
+  build_steps: FarmBuildStep[];
+  troubleshooting: FarmTroubleshootingItem[];
+  diagram_data: FarmDiagramData | null;
+  source_references: FarmSourceReference[];
+  source_type: string;
+  source_url: string | null;
+  edition: string;
+  game_version: string | null;
+  last_verified_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+

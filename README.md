@@ -6,7 +6,7 @@ MineAtlas is an interactive explorer for Minecraft Java Edition that connects bi
 
 ---
 
-## Current Status: Phase 7 (Interactive Cytoscape.js Knowledge Graph Explorer)
+## Current Status: Phase 8 (Curated Farm Blueprint Hub)
 
 MineAtlas provides a fast, stable, and typed REST API over its local SQLite cache (`backend/data/mineatlas.db`) and an interactive React frontend:
 - **Phase 1 (Foundation):** Runnable FastAPI backend, React + Vite frontend, and CI.
@@ -16,11 +16,11 @@ MineAtlas provides a fast, stable, and typed REST API over its local SQLite cach
 - **Phase 5 (FastAPI Query API):** Global multi-entity search, paginated and filterable explorer endpoints, supporting reference endpoints, localized graph-neighbour traversals (depth 1 & 2), and public cache status reporting. Reads strictly from SQLite.
 - **Phase 6 (Core Frontend Explorer):** Full React + Tailwind browser explorer for Mobs, Biomes, Items & Key Blocks (curated 100 catalog), Structures, Global Search, and data transparency.
 - **Phase 7 (Interactive Knowledge Graph Explorer):** Signature Cytoscape.js visual graph canvas (`/graph`) with shape-coded entity nodes, directed relationship arrows, deterministic "Why connected?" explanations, client-side predicate filtering, localized 1-2 hop depth radius, and an accessible Relationship List alternative view.
+- **Phase 8 (Curated Farm Blueprint Hub):** Dedicated hub (`/farms`) and guide detail pages (`/farms/:farmSlug`) for verified Java Edition architectures (Iron Farm, Raid Farm, Villager Breeder). Includes version-specific compatibility notes (highlighting Java 1.21 Ominous Bottle changes), interactive local checklists, original spatial zone schematics, and integration with the Knowledge Graph.
 
 > [!NOTE]
 > **Planned for Later Phases:**
-> - **Curated Farm Guides:** Handcrafted Java Edition farm blueprints with production metrics and graph relationships (Phase 8).
-> - **World Atlas & Calculators:** Spawn mechanics and world reference tools (Phase 9).
+> - **World Atlas & Calculators:** Spawn mechanics, portal mathematics, and world reference tools (Phase 9).
 
 ---
 
@@ -33,7 +33,8 @@ MineAtlas provides a fast, stable, and typed REST API over its local SQLite cach
 | **ORM** | SQLAlchemy 2.0 | Type-safe declarative Python models |
 | **Database Migrations** | Alembic | Version-controlled database schema migrations |
 | **HTTP Client** | httpx | Upstream API communication with in-process token bucket rate limiter |
-| **Backend Testing** | Pytest | Automated endpoint, rate limiter, normalizer, and ingestion test suite (60 tests) |
+| **Backend Testing** | Pytest | Automated endpoint, rate limiter, normalizer, and ingestion test suite (69 tests) |
+| **Frontend Testing** | Vitest + Testing Library | Automated unit, component, and routing test suite (41 tests) |
 | **Frontend Framework** | React 18 + TypeScript | UI component library with static types |
 | **Graph Visualization** | Cytoscape.js | High-performance directed graph canvas with concentric layout |
 | **Frontend Build Tool** | Vite | Ultra-fast local development & bundling |
@@ -182,13 +183,13 @@ mineatlas/
 │   │   │   ├── normalizers.py
 │   │   │   └── ingestion_service.py
 │   │   ├── schemas/        # Pydantic v2 response & request validation models
-│   │   ├── routers/        # Mobs, biomes, items, structures, reference, graph, search
+│   │   ├── routers/        # Mobs, biomes, items, structures, reference, graph, search, farms
 │   │   ├── db/             # Database connection, base classes, and ORM models
-│   │   └── scripts/        # CLI scripts (sync_astroworld.py, audit_astroworld.py)
+│   │   └── scripts/        # CLI scripts (sync_astroworld.py, audit_astroworld.py, seed_curated_farms.py)
 │   ├── data/
 │   │   ├── mineatlas.db    # Local SQLite database (ignored by Git)
 │   │   └── raw_snapshots/  # Local JSON snapshots (ignored by Git)
-│   └── tests/              # 60 Pytest automated unit & integration tests
+│   └── tests/              # 69 Pytest automated unit & integration tests
 │
 ├── frontend/               # React + TypeScript + Vite + Tailwind CSS frontend
 └── .github/

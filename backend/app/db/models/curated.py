@@ -4,7 +4,7 @@ Covers curated Java Edition dimensions, world generation types,
 verified farm architectures, and core game mechanics.
 """
 
-from sqlalchemy import Boolean, Integer, String, Text
+from sqlalchemy import Boolean, Integer, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, ProvenanceMixin, TimestampMixin
@@ -144,6 +144,62 @@ class Farm(Base, ProvenanceMixin, TimestampMixin):
         Text,
         nullable=True,
         doc="Caveats, simulation distance requirements, or common builder mistakes.",
+    )
+    dimension: Mapped[str] = mapped_column(
+        String(64),
+        default="Overworld",
+        nullable=False,
+        doc="Dimension where the farm operates (e.g. 'Overworld', 'The Nether', 'The End').",
+    )
+    compatibility_label: Mapped[str | None] = mapped_column(
+        String(128),
+        nullable=True,
+        doc="Human-friendly version compatibility badge (e.g. 'Minecraft Java Edition 1.14 - 1.21+').",
+    )
+    safety_note: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        doc="Important player safety, mob containment, or anti-lightning measures.",
+    )
+    maintenance_summary: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        doc="Ongoing maintenance, storage clearing, or simulation distance rules.",
+    )
+    outputs: Mapped[list | None] = mapped_column(
+        JSON,
+        nullable=True,
+        doc="Structured list of farm outputs with labels, items, and yields.",
+    )
+    materials: Mapped[list | None] = mapped_column(
+        JSON,
+        nullable=True,
+        doc="Structured materials bill with amounts, categories, and practical notes.",
+    )
+    prerequisites: Mapped[list | None] = mapped_column(
+        JSON,
+        nullable=True,
+        doc="Structured list of prerequisites (locations, mobs, tools) required before building.",
+    )
+    build_steps: Mapped[list | None] = mapped_column(
+        JSON,
+        nullable=True,
+        doc="Ordered build steps with title, instructions, and why_it_matters explanation.",
+    )
+    troubleshooting: Mapped[list | None] = mapped_column(
+        JSON,
+        nullable=True,
+        doc="Common failure symptoms, root causes, and verification checklists.",
+    )
+    diagram_data: Mapped[dict | None] = mapped_column(
+        JSON,
+        nullable=True,
+        doc="Configurable parameters and zone definitions for explanatory visual schematics.",
+    )
+    source_references: Mapped[list | None] = mapped_column(
+        JSON,
+        nullable=True,
+        doc="Curated source documentation, mechanics citations, and reference links.",
     )
 
     def __repr__(self) -> str:

@@ -12,6 +12,8 @@ export const GraphLegend: React.FC<GraphLegendProps> = ({ className = '' }) => {
     { type: 'Biome', shape: 'Hexagon', color: 'border-emerald-500 bg-emerald-950/40 text-emerald-300' },
     { type: 'Item / Key Block', shape: 'Diamond', color: 'border-sky-400 bg-sky-950/40 text-sky-300' },
     { type: 'Structure', shape: 'Rectangle', color: 'border-amber-500 bg-amber-950/40 text-amber-300' },
+    { type: 'Farm', shape: 'Octagon', color: 'border-orange-500 bg-orange-950/40 text-orange-300' },
+    { type: 'Mechanic', shape: 'Rounded Rect', color: 'border-cyan-400 bg-cyan-950/40 text-cyan-300' },
     { type: 'Enchantment', shape: 'Ellipse', color: 'border-purple-400 bg-purple-950/40 text-purple-300' },
     { type: 'Version', shape: 'Tag', color: 'border-slate-500 bg-slate-900 text-slate-300' },
     { type: 'Achievement', shape: 'Star', color: 'border-yellow-400 bg-yellow-950/40 text-yellow-300' },

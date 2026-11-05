@@ -189,9 +189,9 @@ export const GraphExplorer: React.FC = () => {
     { label: 'Bee (Mob)', type: 'mob', id: 'bee' },
     { label: 'Plains (Biome)', type: 'biome', id: 'plains' },
     { label: 'Village (Structure)', type: 'structure', id: 'village' },
-    { label: 'Iron Ingot (Item)', type: 'item', id: 'iron_ingot' },
+    { label: 'Iron Farm (Farm)', type: 'farm', id: 'iron-farm' },
+    { label: 'Raid Farm (Farm)', type: 'farm', id: 'raid-farm' },
     { label: 'Zombie (Mob)', type: 'mob', id: 'zombie' },
-    { label: 'Diamond (Item)', type: 'item', id: 'diamond' },
   ];
 
   return (

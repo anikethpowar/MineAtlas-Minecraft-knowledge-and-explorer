@@ -155,6 +155,30 @@ export const graphStylesheet: StylesheetStyle[] = [
     },
   },
 
+  // Farm: Curated Redstone/Mob Engineering Blueprint (Octagon, Warm Orange accent)
+  {
+    selector: 'node[entityType = "farm"]',
+    style: {
+      shape: 'octagon',
+      'border-color': '#f97316',
+      'background-color': '#2e1507',
+      width: 96,
+      height: 48,
+    },
+  },
+
+  // Mechanic: Game Engine Rules / Systems (Rounded Rectangle, Cyan accent)
+  {
+    selector: 'node[entityType = "mechanic"]',
+    style: {
+      shape: 'round-rectangle',
+      'border-color': '#06b6d4',
+      'background-color': '#09242b',
+      width: 96,
+      height: 44,
+    },
+  },
+
   // ==================== ROOT NODE HIGHLIGHT ====================
   {
     selector: 'node[?isRoot]',

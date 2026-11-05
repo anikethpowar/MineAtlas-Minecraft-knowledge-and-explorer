@@ -16,7 +16,9 @@ from app.db.models import (
     Command,
     Dimension,
     Enchantment,
+    Farm,
     Item,
+    Mechanic,
     Mob,
     RelationEdge,
     Structure,
@@ -136,6 +138,30 @@ class GraphService:
                 return True, dim.name, None
             if e_id in ("overworld", "nether", "the_end"):
                 return True, e_id.replace("_", " ").title(), None
+        elif e_type in ("farm", "farms"):
+            farm = self.session.scalar(
+                select(Farm).where(
+                    or_(
+                        func.lower(Farm.id) == e_id,
+                        func.lower(Farm.id) == e_id.replace("_", "-"),
+                        func.lower(Farm.id) == e_id.replace("-", "_"),
+                    )
+                )
+            )
+            if farm:
+                return True, farm.name, farm.game_version
+        elif e_type in ("mechanic", "mechanics"):
+            mech = self.session.scalar(
+                select(Mechanic).where(
+                    or_(
+                        func.lower(Mechanic.id) == e_id,
+                        func.lower(Mechanic.id) == e_id.replace("_", "-"),
+                        func.lower(Mechanic.id) == e_id.replace("-", "_"),
+                    )
+                )
+            )
+            if mech:
+                return True, mech.name, mech.game_version
 
         return False, e_id, None
 
@@ -267,6 +293,30 @@ class GraphService:
                     game_version=None,
                 )
 
+        # Resolve Farms
+        if "farm" in by_type:
+            for f in self.session.scalars(select(Farm).where(func.lower(Farm.id).in_(by_type["farm"]))):
+                nodes[("farm", f.id)] = GraphNode(
+                    entity_type="farm",
+                    id=f.id,
+                    name=f.name,
+                    source_type=f.source_type,
+                    edition=f.edition,
+                    game_version=f.game_version,
+                )
+
+        # Resolve Mechanics
+        if "mechanic" in by_type:
+            for m in self.session.scalars(select(Mechanic).where(func.lower(Mechanic.id).in_(by_type["mechanic"]))):
+                nodes[("mechanic", m.id)] = GraphNode(
+                    entity_type="mechanic",
+                    id=m.id,
+                    name=m.name,
+                    source_type=m.source_type,
+                    edition=m.edition,
+                    game_version=m.game_version,
+                )
+
         # Fallback for dimensions or unresolved nodes
         for n_type, n_id in node_keys:
             key = (n_type, n_id)
@@ -327,6 +377,12 @@ class GraphService:
             return f"{source_name} unlocks advancement {target_name}."
         if verb == "ADDED_IN":
             return f"{source_name} was introduced in Minecraft Java Edition {target_name}."
+        if verb == "REQUIRES":
+            return f"{source_name} requires {target_name} to operate effectively."
+        if verb == "PRODUCES":
+            return f"{source_name} produces {target_name} as primary output."
+        if verb == "USED_FOR":
+            return f"{source_name} is utilized for {target_name}."
 
         return f"{source_name} is connected to {target_name} via {rel_type}."
 
@@ -366,6 +422,7 @@ class GraphService:
             )
 
         if clean_type in ("structure", "structures"):
+            clean_type = "structure"
             struct = self.session.scalar(
                 select(Structure).where(
                     or_(
@@ -376,6 +433,32 @@ class GraphService:
             )
             if struct:
                 clean_id = struct.id.lower()
+        elif clean_type in ("farm", "farms"):
+            clean_type = "farm"
+            farm_obj = self.session.scalar(
+                select(Farm).where(
+                    or_(
+                        func.lower(Farm.id) == clean_id,
+                        func.lower(Farm.id) == clean_id.replace("_", "-"),
+                        func.lower(Farm.id) == clean_id.replace("-", "_"),
+                    )
+                )
+            )
+            if farm_obj:
+                clean_id = farm_obj.id.lower()
+        elif clean_type in ("mechanic", "mechanics"):
+            clean_type = "mechanic"
+            mech_obj = self.session.scalar(
+                select(Mechanic).where(
+                    or_(
+                        func.lower(Mechanic.id) == clean_id,
+                        func.lower(Mechanic.id) == clean_id.replace("_", "-"),
+                        func.lower(Mechanic.id) == clean_id.replace("-", "_"),
+                    )
+                )
+            )
+            if mech_obj:
+                clean_id = mech_obj.id.lower()
 
         # Canonicalize root node
         root_info = GraphRoot(

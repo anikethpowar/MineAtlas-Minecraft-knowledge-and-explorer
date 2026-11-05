@@ -5,6 +5,7 @@ from app.config import CORS_ORIGINS
 from app.routers import (
     biomes,
     development,
+    farms,
     graph,
     health,
     items,
@@ -39,6 +40,7 @@ app.include_router(biomes.router, prefix="/api", tags=["biomes"])
 app.include_router(items.router, prefix="/api", tags=["items"])
 app.include_router(structures.router, prefix="/api", tags=["structures"])
 app.include_router(reference.router, prefix="/api", tags=["reference"])
+app.include_router(farms.router, prefix="/api", tags=["farms"])
 app.include_router(graph.router, prefix="/api", tags=["graph"])
 app.include_router(development.router, prefix="/api", tags=["development"])
 

@@ -16,6 +16,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
     { name: 'Biomes', path: '/biomes' },
     { name: 'Items & Blocks', path: '/items' },
     { name: 'Structures', path: '/structures' },
+    { name: 'Farm Hub', path: '/farms' },
     { name: 'Graph Explorer', path: '/graph' },
     { name: 'Search', path: '/search' },
     { name: 'About Data', path: '/about-data' },

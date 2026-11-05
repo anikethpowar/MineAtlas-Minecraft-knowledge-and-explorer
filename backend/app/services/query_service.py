@@ -16,6 +16,7 @@ from app.db.models import (
     Biome,
     Command,
     Enchantment,
+    Farm,
     Item,
     Mob,
     Structure,
@@ -24,6 +25,12 @@ from app.db.models import (
     VillagerProfession,
 )
 from app.schemas.common import PaginationMeta, ProvenanceResponse
+from app.schemas.farms import (
+    FarmDetail,
+    FarmDetailResponse,
+    FarmListItem,
+    FarmListResponse,
+)
 from app.schemas.search import SearchResponse, SearchResultItem
 
 T = TypeVar("T")
@@ -368,6 +375,36 @@ class QueryService:
             if prof_matches:
                 by_type["villager_profession"] = len(prof_matches)
 
+        # 10. Farms (Curated Guides)
+        if not requested_types or "farm" in requested_types or "farms" in requested_types:
+            farm_matches = self.session.scalars(
+                select(Farm)
+                .where(
+                    or_(
+                        func.lower(Farm.name).like(pattern),
+                        func.lower(Farm.id).like(pattern),
+                        func.lower(Farm.category).like(pattern),
+                        func.lower(Farm.summary).like(pattern),
+                    )
+                )
+                .limit(safe_limit)
+            ).all()
+            for f in farm_matches:
+                results.append(
+                    SearchResultItem(
+                        entity_type="farm",
+                        id=f.id,
+                        name=f.name,
+                        subtitle=f"{f.difficulty or 'Guide'} | {f.dimension}",
+                        description=f.summary[:150] if f.summary else None,
+                        source_type=f.source_type,
+                        edition=f.edition,
+                        game_version=f.game_version,
+                    )
+                )
+            if farm_matches:
+                by_type["farm"] = len(farm_matches)
+
         # Truncate overall results to safe_limit
         final_results = results[:safe_limit]
 
@@ -568,3 +605,110 @@ class QueryService:
                 },
             )
         return prof
+
+    # ==================== CURATED FARM BLUEPRINTS ====================
+    def get_farms(
+        self,
+        page: int = 1,
+        page_size: int = 20,
+        search: str | None = None,
+        difficulty: str | None = None,
+        dimension: str | None = None,
+    ) -> FarmListResponse:
+        """List curated farm guides with optional search, difficulty, and dimension filters."""
+        stmt = select(Farm)
+        filters: dict[str, Any] = {
+            "search": search,
+            "difficulty": difficulty,
+            "dimension": dimension,
+        }
+
+        if search and search.strip():
+            pat = f"%{search.strip().lower()}%"
+            stmt = stmt.where(
+                or_(
+                    func.lower(Farm.name).like(pat),
+                    func.lower(Farm.id).like(pat),
+                    func.lower(Farm.summary).like(pat),
+                )
+            )
+
+        if difficulty and difficulty.strip():
+            stmt = stmt.where(func.lower(Farm.difficulty) == difficulty.strip().lower())
+
+        if dimension and dimension.strip():
+            stmt = stmt.where(func.lower(Farm.dimension) == dimension.strip().lower())
+
+        stmt = stmt.order_by(Farm.name.asc())
+        farms, pagination = paginate(self.session, stmt, page=page, page_size=page_size)
+
+        data = [
+            FarmListItem(
+                id=f.id,
+                name=f.name,
+                category=f.category,
+                difficulty=f.difficulty,
+                dimension=f.dimension,
+                estimated_output_per_hour=f.estimated_output_per_hour,
+                summary=f.summary,
+                compatibility_label=f.compatibility_label,
+                source_type=f.source_type,
+                edition=f.edition,
+                last_verified_at=f.last_verified_at,
+            )
+            for f in farms
+        ]
+
+        return FarmListResponse(data=data, pagination=pagination, filters=filters)
+
+    def get_farm_by_id(self, farm_slug: str) -> FarmDetailResponse:
+        """Retrieve full structured guide for a curated Minecraft farm."""
+        slug_clean = farm_slug.strip().lower()
+        farm = self.session.scalar(
+            select(Farm).where(
+                or_(
+                    func.lower(Farm.id) == slug_clean,
+                    func.lower(Farm.id) == slug_clean.replace("_", "-"),
+                    func.lower(Farm.id) == slug_clean.replace("-", "_"),
+                )
+            )
+        )
+        if farm is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "code": "farm_not_found",
+                    "message": f"Farm guide '{farm_slug}' was not found in curated repository.",
+                },
+            )
+
+        detail = FarmDetail(
+            id=farm.id,
+            name=farm.name,
+            category=farm.category,
+            difficulty=farm.difficulty,
+            dimension=farm.dimension,
+            summary=farm.summary,
+            description=farm.description,
+            estimated_output_per_hour=farm.estimated_output_per_hour,
+            compatibility_label=farm.compatibility_label,
+            coverage_note=farm.coverage_note,
+            safety_note=farm.safety_note,
+            maintenance_summary=farm.maintenance_summary,
+            notes=farm.notes,
+            outputs=farm.outputs or [],
+            prerequisites=farm.prerequisites or [],
+            materials=farm.materials or [],
+            build_steps=farm.build_steps or [],
+            troubleshooting=farm.troubleshooting or [],
+            diagram_data=farm.diagram_data,
+            source_references=farm.source_references or [],
+            source_type=farm.source_type,
+            source_url=farm.source_url,
+            edition=farm.edition,
+            game_version=farm.game_version,
+            last_verified_at=farm.last_verified_at,
+            created_at=farm.created_at,
+            updated_at=farm.updated_at,
+        )
+        return FarmDetailResponse(data=detail)

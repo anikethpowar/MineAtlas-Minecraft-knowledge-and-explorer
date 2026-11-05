@@ -76,6 +76,15 @@ export const HomePage: React.FC = () => {
       accentColor: 'border-amber-500/30 text-amber-400 group-hover:border-amber-500/60',
       badge: 'World Generation',
     },
+    {
+      title: 'Farm Blueprint Hub',
+      description: 'Original curated Java Edition farm guides with verified mechanics, checklists, and schematics.',
+      count: 3,
+      countLabel: 'curated guides',
+      path: '/farms',
+      accentColor: 'border-orange-500/30 text-orange-400 group-hover:border-orange-500/60',
+      badge: 'Curated Guides',
+    },
   ];
 
   return (
@@ -86,8 +95,8 @@ export const HomePage: React.FC = () => {
 
         <div className="relative z-10 max-w-3xl">
           <div className="flex flex-wrap items-center gap-2.5 mb-4">
-            <span className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-              Phase 7: Knowledge Graph
+            <span className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider rounded-md bg-orange-500/10 text-orange-400 border border-orange-500/30">
+              Phase 8: Curated Farm Hub
             </span>
             <EditionBadge edition="Java Edition" />
             <DataFreshnessIndicator status={dataStatus} loading={loadingStatus} />

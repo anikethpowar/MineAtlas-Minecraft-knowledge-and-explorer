@@ -6,6 +6,8 @@ import PageContainer from './components/layout/PageContainer';
 import AboutDataPage from './pages/AboutDataPage';
 import BiomeDetailPage from './pages/BiomeDetailPage';
 import BiomesPage from './pages/BiomesPage';
+import { FarmDetailPage } from './pages/FarmDetailPage';
+import { FarmsPage } from './pages/FarmsPage';
 import HomePage from './pages/HomePage';
 import GraphPage from './pages/GraphPage';
 import ItemDetailPage from './pages/ItemDetailPage';
@@ -49,6 +51,10 @@ export const App: React.FC = () => {
             {/* Structures Explorer */}
             <Route path="/structures" element={<StructuresPage />} />
             <Route path="/structures/:structureId" element={<StructureDetailPage />} />
+
+            {/* Curated Farm Blueprint Hub */}
+            <Route path="/farms" element={<FarmsPage />} />
+            <Route path="/farms/:farmSlug" element={<FarmDetailPage />} />
 
             {/* About Data & Transparency */}
             <Route path="/about-data" element={<AboutDataPage />} />

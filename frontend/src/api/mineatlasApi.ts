@@ -16,6 +16,8 @@ import {
   BiomeListItem,
   DataStatusResponse,
   DetailResponse,
+  FarmDetail,
+  FarmListItem,
   GraphNeighborsResponse,
   ItemDetail,
   ItemListItem,
@@ -194,6 +196,27 @@ export async function getStructures(params?: {
  */
 export async function getStructureById(structureId: string): Promise<StructureDetail> {
   const res = await fetchJson<DetailResponse<StructureDetail>>(`/api/structures/${encodeURIComponent(structureId)}`);
+  return res.data;
+}
+
+/**
+ * Curated Farm Blueprint Hub - list
+ */
+export async function getFarms(params?: {
+  page?: number;
+  page_size?: number;
+  search?: string;
+  difficulty?: string;
+  dimension?: string;
+}): Promise<PaginatedResponse<FarmListItem>> {
+  return fetchJson<PaginatedResponse<FarmListItem>>('/api/farms', params);
+}
+
+/**
+ * Curated Farm Blueprint Hub - detail
+ */
+export async function getFarmBySlug(farmSlug: string): Promise<FarmDetail> {
+  const res = await fetchJson<DetailResponse<FarmDetail>>(`/api/farms/${encodeURIComponent(farmSlug)}`);
   return res.data;
 }
 
