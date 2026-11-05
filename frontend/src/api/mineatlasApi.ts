@@ -27,6 +27,12 @@ import {
   SearchResponse,
   StructureDetail,
   StructureListItem,
+  BiomeMatchesResponse,
+  PortalConvertRequest,
+  PortalConvertResponse,
+  SpawnSphereRequest,
+  SpawnSphereResponse,
+  WorldReferenceResponse,
 } from './types';
 
 export interface HealthResponse {
@@ -64,6 +70,36 @@ async function fetchJson<T>(endpoint: string, searchParams?: Record<string, stri
     headers: {
       Accept: 'application/json',
     },
+  });
+
+  if (!response.ok) {
+    let errorDetail = response.statusText || 'Unknown Error';
+    try {
+      const errorJson = await response.json();
+      if (errorJson && errorJson.detail) {
+        errorDetail = typeof errorJson.detail === 'string' ? errorJson.detail : JSON.stringify(errorJson.detail);
+      }
+    } catch {
+      // Ignore if body is not JSON
+    }
+    throw new Error(`API Error (${response.status}): ${errorDetail}`);
+  }
+
+  return response.json() as Promise<T>;
+}
+
+/**
+ * Internal generic POST helper with JSON payload and standard error handling.
+ */
+async function postJson<T>(endpoint: string, body: unknown): Promise<T> {
+  const url = `${API_BASE_URL}${endpoint}`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
@@ -239,3 +275,49 @@ export async function getGraphNeighbors(
     }
   );
 }
+
+// ==================== WORLD ATLAS TOOLS ====================
+
+/**
+ * Curated world reference metadata for Java Edition dimensions & coordinates.
+ */
+export async function getWorldReference(): Promise<WorldReferenceResponse> {
+  return fetchJson<WorldReferenceResponse>('/api/world/reference');
+}
+
+/**
+ * Calculated 8:1 Nether portal horizontal coordinate converter.
+ */
+export async function convertPortalCoordinates(
+  payload: PortalConvertRequest
+): Promise<PortalConvertResponse> {
+  return postJson<PortalConvertResponse>('/api/world/portal-convert', payload);
+}
+
+/**
+ * Criteria-based biome search with explainable match reasons.
+ */
+export async function getBiomeMatches(params?: {
+  dimension?: string;
+  category?: string;
+  rarity?: string;
+  precipitation?: string;
+  temperature_min?: number;
+  temperature_max?: number;
+  has_village_opportunity?: boolean;
+  has_tameable_mob_opportunity?: boolean;
+  beginner_friendly?: boolean;
+  limit?: number;
+}): Promise<BiomeMatchesResponse> {
+  return fetchJson<BiomeMatchesResponse>('/api/world/biome-matches', params);
+}
+
+/**
+ * Geometric spawn sphere and despawn radius visualizer calculations.
+ */
+export async function calculateSpawnSphere(
+  payload: SpawnSphereRequest
+): Promise<SpawnSphereResponse> {
+  return postJson<SpawnSphereResponse>('/api/world/spawn-sphere', payload);
+}
+

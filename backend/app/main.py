@@ -14,6 +14,7 @@ from app.routers import (
     search,
     status,
     structures,
+    world,
 )
 
 app = FastAPI(
@@ -27,7 +28,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -42,6 +43,7 @@ app.include_router(structures.router, prefix="/api", tags=["structures"])
 app.include_router(reference.router, prefix="/api", tags=["reference"])
 app.include_router(farms.router, prefix="/api", tags=["farms"])
 app.include_router(graph.router, prefix="/api", tags=["graph"])
+app.include_router(world.router, prefix="/api", tags=["world"])
 app.include_router(development.router, prefix="/api", tags=["development"])
 
 

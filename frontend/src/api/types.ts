@@ -313,3 +313,131 @@ export interface FarmDetail {
   updated_at: string;
 }
 
+// ==================== WORLD ATLAS & CALCULATORS ====================
+export interface DimensionReference {
+  id: string;
+  name: string;
+  role: string;
+  description: string;
+  coordinate_scale: string;
+  skylight: boolean;
+  bed_safe: boolean;
+  min_y: number;
+  max_y: number;
+  source_type: string;
+  edition: string;
+}
+
+export interface CoordinatesExplanation {
+  x_axis: string;
+  y_axis: string;
+  z_axis: string;
+  origin_point: string;
+  world_border: string;
+}
+
+export interface WorldReferenceResponse {
+  title: string;
+  edition: string;
+  dimensions: DimensionReference[];
+  coordinate_system: CoordinatesExplanation;
+  dimension_travel_rules: string[];
+  seed_limitation_statement: string;
+  provenance: {
+    source_type: string;
+    edition: string;
+  };
+}
+
+export interface PortalCoordinates {
+  x: number;
+  y: number;
+  z: number;
+}
+
+export interface PortalConvertRequest {
+  source_dimension: string;
+  x: number;
+  y: number;
+  z: number;
+}
+
+export interface PortalConvertResponse {
+  result_type: string;
+  source_dimension: string;
+  target_dimension: string;
+  source_coordinates: PortalCoordinates;
+  target_coordinates: PortalCoordinates;
+  formula_name: string;
+  formula_expression: string;
+  formula_explanation: string;
+  assumptions: string[];
+  limitations: string[];
+  provenance: {
+    source_type: string;
+    edition: string;
+  };
+}
+
+export interface BiomeMatchSummary {
+  id: string;
+  name: string;
+  dimension: string | null;
+  category: string | null;
+  rarity: string | null;
+  temperature: number | null;
+  precipitation: string | null;
+}
+
+export interface BiomeMatchItem {
+  biome: BiomeMatchSummary;
+  match_reasons: string[];
+  source: {
+    source_type: string;
+    edition: string;
+  };
+}
+
+export interface BiomeMatchesResponse {
+  result_type: string;
+  criteria: Record<string, string | number | boolean | null | undefined>;
+  total_matches: number;
+  data: BiomeMatchItem[];
+  limitations: string[];
+  provenance: {
+    source_type: string;
+    edition: string;
+  };
+}
+
+export interface SpawnSphereRequest {
+  radius: number;
+  player_y?: number | null;
+}
+
+export interface SpawnSphereMeasurements {
+  radius: number;
+  diameter: number;
+  circular_area_blocks: number;
+  sphere_volume_blocks: number;
+  circumference_blocks: number;
+  vertical_range?: {
+    min_y: number;
+    max_y: number;
+  } | null;
+}
+
+export interface SpawnSphereResponse {
+  result_type: string;
+  measurements: SpawnSphereMeasurements;
+  geometric_explanation: string;
+  formulas_used: Record<string, string>;
+  assumptions: string[];
+  limitations: string[];
+  provenance: {
+    source_type: string;
+    edition: string;
+  };
+}
+
+

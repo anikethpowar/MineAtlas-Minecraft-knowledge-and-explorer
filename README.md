@@ -6,7 +6,7 @@ MineAtlas is an interactive explorer for Minecraft Java Edition that connects bi
 
 ---
 
-## Current Status: Phase 8 (Curated Farm Blueprint Hub)
+## Current Status: Phase 9 (Calculated World Atlas Tools)
 
 MineAtlas provides a fast, stable, and typed REST API over its local SQLite cache (`backend/data/mineatlas.db`) and an interactive React frontend:
 - **Phase 1 (Foundation):** Runnable FastAPI backend, React + Vite frontend, and CI.
@@ -17,10 +17,11 @@ MineAtlas provides a fast, stable, and typed REST API over its local SQLite cach
 - **Phase 6 (Core Frontend Explorer):** Full React + Tailwind browser explorer for Mobs, Biomes, Items & Key Blocks (curated 100 catalog), Structures, Global Search, and data transparency.
 - **Phase 7 (Interactive Knowledge Graph Explorer):** Signature Cytoscape.js visual graph canvas (`/graph`) with shape-coded entity nodes, directed relationship arrows, deterministic "Why connected?" explanations, client-side predicate filtering, localized 1-2 hop depth radius, and an accessible Relationship List alternative view.
 - **Phase 8 (Curated Farm Blueprint Hub):** Dedicated hub (`/farms`) and guide detail pages (`/farms/:farmSlug`) for verified Java Edition architectures (Iron Farm, Raid Farm, Villager Breeder). Includes version-specific compatibility notes (highlighting Java 1.21 Ominous Bottle changes), interactive local checklists, original spatial zone schematics, and integration with the Knowledge Graph.
+- **Phase 9 (Calculated World Atlas Tools):** Comprehensive spatial reference and technical calculator suite at `/world` and `/api/world/*`. Includes curated dimension and coordinate system specifications with responsive SVG diagram, deterministic 8:1 Nether portal coordinate converter, explainable biome criteria matcher with graph relations, and geometric mob spawn sphere / despawn radius visualizer with circular SVG diagrams.
 
 > [!NOTE]
 > **Planned for Later Phases:**
-> - **World Atlas & Calculators:** Spawn mechanics, portal mathematics, and world reference tools (Phase 9).
+> - **Advancements & Lore Guide:** Progressions, milestones, and discovery pathways.
 
 ---
 
@@ -33,8 +34,8 @@ MineAtlas provides a fast, stable, and typed REST API over its local SQLite cach
 | **ORM** | SQLAlchemy 2.0 | Type-safe declarative Python models |
 | **Database Migrations** | Alembic | Version-controlled database schema migrations |
 | **HTTP Client** | httpx | Upstream API communication with in-process token bucket rate limiter |
-| **Backend Testing** | Pytest | Automated endpoint, rate limiter, normalizer, and ingestion test suite (69 tests) |
-| **Frontend Testing** | Vitest + Testing Library | Automated unit, component, and routing test suite (41 tests) |
+| **Backend Testing** | Pytest | Automated endpoint, rate limiter, normalizer, and world tool suite (85 tests) |
+| **Frontend Testing** | Vitest + Testing Library | Automated unit, component, and routing test suite (48 tests) |
 | **Frontend Framework** | React 18 + TypeScript | UI component library with static types |
 | **Graph Visualization** | Cytoscape.js | High-performance directed graph canvas with concentric layout |
 | **Frontend Build Tool** | Vite | Ultra-fast local development & bundling |
@@ -103,6 +104,10 @@ All endpoints read strictly from the local SQLite cache and never call upstream 
 | `/api/trades` | `GET` | Villager trade transactions | `page`, `page_size`, `search`, `profession_id`, `level` |
 | `/api/villager-professions` | `GET` | 13 villager professions | `page`, `page_size`, `search` |
 | `/api/graph/neighbors/{type}/{id}` | `GET` | Localized graph traversal | `depth` (1 or 2), `relationship_types`, `limit` |
+| `/api/world/reference` | `GET` | Curated Java dimension & coordinate reference | — |
+| `/api/world/portal-convert` | `POST` | Deterministic 8:1 Nether portal coordinate converter | `source_dimension`, `x`, `y`, `z` |
+| `/api/world/biome-matches` | `GET` | Rule-based biome criteria matcher with graph relations | `dimension`, `category`, `rarity`, `precipitation`, `beginner_friendly`, `has_village_opportunity` |
+| `/api/world/spawn-sphere` | `POST` | Geometric spawn sphere and despawn radius visualizer | `radius`, `player_y` |
 | `/api/data-status` | `GET` | Cache health & totals | — |
 
 For complete query documentation, see [`docs/BACKEND_QUERY_API.md`](docs/BACKEND_QUERY_API.md).

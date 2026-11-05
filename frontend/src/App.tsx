@@ -17,6 +17,7 @@ import MobsPage from './pages/MobsPage';
 import SearchPage from './pages/SearchPage';
 import StructureDetailPage from './pages/StructureDetailPage';
 import StructuresPage from './pages/StructuresPage';
+import WorldPage from './pages/WorldPage';
 
 /**
  * App Component
@@ -55,6 +56,9 @@ export const App: React.FC = () => {
             {/* Curated Farm Blueprint Hub */}
             <Route path="/farms" element={<FarmsPage />} />
             <Route path="/farms/:farmSlug" element={<FarmDetailPage />} />
+
+            {/* Calculated World Atlas Tools */}
+            <Route path="/world" element={<WorldPage />} />
 
             {/* About Data & Transparency */}
             <Route path="/about-data" element={<AboutDataPage />} />

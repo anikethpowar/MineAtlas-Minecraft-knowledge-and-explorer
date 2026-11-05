@@ -30,7 +30,11 @@ export const SourceBadge: React.FC<SourceBadgeProps> = ({
     label = 'Curated';
     badgeClasses =
       'bg-purple-500/10 text-purple-300 border-purple-500/30 hover:border-purple-500/50';
-  } else if (normalized.includes('calc') || normalized.includes('derived') || normalized.includes('graph')) {
+  } else if (normalized === 'calculated' || normalized.includes('calc')) {
+    label = 'Calculated Result';
+    badgeClasses =
+      'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:border-emerald-500/50';
+  } else if (normalized.includes('derived') || normalized.includes('graph')) {
     label = 'Derived Relation';
     badgeClasses =
       'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:border-emerald-500/50';

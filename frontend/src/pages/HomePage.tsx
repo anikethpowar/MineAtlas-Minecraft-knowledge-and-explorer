@@ -85,6 +85,15 @@ export const HomePage: React.FC = () => {
       accentColor: 'border-orange-500/30 text-orange-400 group-hover:border-orange-500/60',
       badge: 'Curated Guides',
     },
+    {
+      title: 'World Atlas & Tools',
+      description: 'Calculated 8:1 Nether portal converter, biome criteria explorer, and spawn sphere radius visualizer.',
+      count: 4,
+      countLabel: 'atlas & tools',
+      path: '/world',
+      accentColor: 'border-purple-500/30 text-purple-400 group-hover:border-purple-500/60',
+      badge: 'Calculators & Atlas',
+    },
   ];
 
   return (
@@ -95,8 +104,8 @@ export const HomePage: React.FC = () => {
 
         <div className="relative z-10 max-w-3xl">
           <div className="flex flex-wrap items-center gap-2.5 mb-4">
-            <span className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider rounded-md bg-orange-500/10 text-orange-400 border border-orange-500/30">
-              Phase 8: Curated Farm Hub
+            <span className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/30">
+              Phase 9: Calculated World Atlas
             </span>
             <EditionBadge edition="Java Edition" />
             <DataFreshnessIndicator status={dataStatus} loading={loadingStatus} />
