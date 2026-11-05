@@ -46,56 +46,76 @@ flowchart LR
 
 ---
 
-## Current Status: Phase 1 (Foundation)
+## System Architecture Status: Complete Release
 
-> [!IMPORTANT]
-> In **Phase 1: Foundation**, only the **React Frontend ↔ FastAPI Backend** connection exists.
-> SQLite persistence, Astroworld API ingestion, and graph visualizers are **not yet active**.
+MineAtlas implements a full three-tier architecture that completely isolates browser users from upstream external APIs:
 
 ```mermaid
-flowchart LR
-    subgraph Phase 1 Implemented
-    F["React Frontend (:5173)"] -->|GET /api/health| B["FastAPI Backend (:8000)"]
+flowchart TD
+    subgraph Tier 1: Presentation
+        UI["React 18 + TypeScript + Vite (:5173)\nTailwind CSS • Cytoscape.js • SVG Schematics"]
     end
-    subgraph Future Phases
-    B -.->|Planned| DB["SQLite Database"]
-    B -.->|Planned (50 req/min)| AW["Astroworld API"]
+
+    subgraph Tier 2: Application & Cache
+        API["FastAPI Backend (:8000)\nTyped REST Endpoints • Pydantic Schemas • CORS"]
+        DB[("SQLite Local Cache & DB\nSQLAlchemy ORM • Alembic Migrations")]
+        API <-->|SQL Queries| DB
     end
+
+    subgraph Tier 3: Upstream Ingestion
+        SYNC["Background CLI Ingestion & Seeder\nToken-Bucket Limiter (≤ 50 req/min)"]
+        AW["Astroworld Public API\n(api.astroworldmc.com)"]
+        SYNC <-->|Rate-Limited HTTPS| AW
+        SYNC -->|Idempotent Upsert| DB
+    end
+
+    UI <-->|HTTP / JSON REST (/api/*)| API
+
+    classDef presentation fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef application fill:#022c22,stroke:#10b981,stroke-width:2px,color:#f8fafc;
+    classDef upstream fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+
+    class UI presentation;
+    class API,DB application;
+    class SYNC,AW upstream;
 ```
 
 ---
 
-## Component Explanations for Beginners
+## Component Details & Responsibilities
 
 ### 1. React Frontend (`frontend/`)
-- **What it does:** Runs inside the user's web browser. It renders the user interface (buttons, cards, badges) and fetches data from our backend.
+- **What it does:** Runs entirely inside the user's web browser. It renders the user interface (interactive Cytoscape.js graph, mob and biome registries, farm blueprints with interactive material checklists, and world calculators).
+- **Isolation Guarantee:** The frontend exclusively communicates with the local FastAPI backend (`http://localhost:8000/api/*`). It **never** contacts Astroworld or external third parties directly.
 - **Why Vite & TypeScript?**
-  - **Vite** is a lightning-fast build tool that starts up instantly and reloads changes automatically during development.
-  - **TypeScript** adds static types (like `HealthResponse`), preventing runtime bugs and spelling errors in object keys.
+  - **Vite** delivers sub-second Hot Module Replacement (HMR) and optimized Rollup production bundles.
+  - **TypeScript** enforces strict typing across all API payloads, graph nodes, and component props.
 - **Why Tailwind CSS?**
-  - Allows styling elements directly using standard utility classes (e.g. `bg-emerald-600`, `text-white`, `rounded-md`), keeping styling uniform and maintainable without large custom CSS files.
+  - Utility-first dark Minecraft exploration theme without bloated external CSS libraries.
 
 ### 2. API Communication Layer (`frontend/src/api/mineatlasApi.ts`)
-- **What it does:** Acts as the single doorway through which the frontend makes network requests.
-- **Why isolate it?** Instead of putting `fetch()` calls scattered everywhere inside React components, keeping requests in one central file makes the code cleaner, easier to test, and ensures compliance with the rule that frontend code never contacts external third parties directly.
+- **What it does:** Centralized HTTP client managing all REST calls, parameter serialization, error extraction, and endpoint routes.
+- **Why isolate it?** Decouples UI components from networking logic, ensures strict single-point error handling, and makes mocking straightforward in automated Vitest tests.
 
 ### 3. FastAPI Backend (`backend/app/`)
-- **What it does:** A lightweight, high-performance Python web framework that handles HTTP endpoints, data validation, and business logic.
-- **Why FastAPI?**
-  - Built-in type hint support (Pydantic), automatic OpenAPI documentation at `/docs`, and high performance.
-  - Very clean syntax for beginners compared to larger frameworks.
-- **CORS (Cross-Origin Resource Sharing):**
-  - By default, browsers block web pages from making requests to a different port (e.g., `localhost:5173` calling `localhost:8000`).
-  - FastAPI includes CORS middleware that explicitly permits requests originating from our local Vite development server.
+- **What it does:** High-performance, typed Python 3.12 web service handling endpoint routing, query pagination, localized graph traversals, and mathematical calculations.
+- **FastAPI Advantages:**
+  - Automatic OpenAPI / Swagger interactive documentation at `/docs`.
+  - Pydantic models for strict request/response validation.
+  - Dependency injection for database sessions (`get_db`).
+- **CORS Configuration:**
+  - Configured to permit only local development origins (`http://localhost:5173` and `http://127.0.0.1:5173`).
 
-### 4. SQLite Database (Planned for Phase 2)
-- **What it does:** Stores mobs, biomes, items, and graph relationships in a single file on disk (`mineatlas.db`).
+### 4. SQLite Local Cache & Database (`backend/data/mineatlas.db`)
+- **What it does:** Stores all entities (76 mobs, 64 biomes, 100 key items, 24 structures, enchantments, trades), 650 derived graph edges, 3 curated farm guides, 3 dimensions, and 5 world presets.
 - **Why SQLite over PostgreSQL or Docker?**
-  - Zero background daemon, zero configuration, zero memory overhead. It runs comfortably on Linux Mint with zero setup required.
+  - Single zero-configuration file on disk.
+  - Zero background daemon, zero port binding, zero memory leaks.
+  - Runs natively and comfortably on Linux Mint.
 
-### 5. Astroworld API Integration (Planned for Phase 2)
-- **What it does:** Upstream source for standard Minecraft Java Edition entity drops, trade tables, and biome features.
-- **Rate Limit Protection:**
-  - The backend will enforce an internal token bucket / scheduler capped at **50 requests per minute**.
-  - Requests are cached in SQLite so that repeated frontend views never hit the upstream API unnecessarily.
+### 5. Controlled Upstream Ingestion & Rate Limiting (`backend/app/clients/` & `scripts/`)
+- **What it does:** CLI scripts (`sync_astroworld.py`, `seed_curated_farms.py`, `seed_world_reference.py`) that populate SQLite.
+- **Rate-Limit Safety:**
+  - Enforces an in-process token bucket rate limiter strictly capped at **50 requests per minute** (1 request every 1.2 seconds with exponential backoff).
+  - All normal browsing queries read exclusively from local SQLite, generating **0** external network requests.
 

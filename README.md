@@ -2,219 +2,278 @@
 
 **Minecraft Java Edition Atlas & Knowledge Graph Explorer**
 
-MineAtlas is an interactive explorer for Minecraft Java Edition that connects biomes, mobs, items, key blocks, structures, enchantments, villager trades, and curated farm guides into a unified, graph-driven knowledge base.
+[![MineAtlas CI](https://github.com/anikethpowar/MineAtlas-Minecraft-knowledge-and-explorer/actions/workflows/ci.yml/badge.svg)](https://github.com/anikethpowar/MineAtlas-Minecraft-knowledge-and-explorer/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)
+[![Python: 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
+[![React: 18](https://img.shields.io/badge/React-18-61dafb.svg)](https://react.dev/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com/)
+[![SQLite](https://img.shields.io/badge/SQLite-Local_Cache-003B57.svg)](https://www.sqlite.org/)
 
 ---
 
-## Current Status: Phase 9 (Calculated World Atlas Tools)
+## 1. Overview
 
-MineAtlas provides a fast, stable, and typed REST API over its local SQLite cache (`backend/data/mineatlas.db`) and an interactive React frontend:
-- **Phase 1 (Foundation):** Runnable FastAPI backend, React + Vite frontend, and CI.
-- **Phase 2 (API Audit):** Safe, rate-limited audit tool (`python -m app.scripts.audit_astroworld`) verified all 9 Astroworld collection endpoints.
-- **Phase 3 (Database Schema):** SQLite database configured with SQLAlchemy ORM models and Alembic migrations across 16 canonical tables.
-- **Phase 4 (Ingestion & Graph Caching):** Strict 50 req/min rate limiter, idempotent SQLite caching, probability normalization, `SyncRun` tracking, and automatic derivation of 650 semantic graph edges.
-- **Phase 5 (FastAPI Query API):** Global multi-entity search, paginated and filterable explorer endpoints, supporting reference endpoints, localized graph-neighbour traversals (depth 1 & 2), and public cache status reporting. Reads strictly from SQLite.
-- **Phase 6 (Core Frontend Explorer):** Full React + Tailwind browser explorer for Mobs, Biomes, Items & Key Blocks (curated 100 catalog), Structures, Global Search, and data transparency.
-- **Phase 7 (Interactive Knowledge Graph Explorer):** Signature Cytoscape.js visual graph canvas (`/graph`) with shape-coded entity nodes, directed relationship arrows, deterministic "Why connected?" explanations, client-side predicate filtering, localized 1-2 hop depth radius, and an accessible Relationship List alternative view.
-- **Phase 8 (Curated Farm Blueprint Hub):** Dedicated hub (`/farms`) and guide detail pages (`/farms/:farmSlug`) for verified Java Edition architectures (Iron Farm, Raid Farm, Villager Breeder). Includes version-specific compatibility notes (highlighting Java 1.21 Ominous Bottle changes), interactive local checklists, original spatial zone schematics, and integration with the Knowledge Graph.
-- **Phase 9 (Calculated World Atlas Tools):** Comprehensive spatial reference and technical calculator suite at `/world` and `/api/world/*`. Includes curated dimension and coordinate system specifications with responsive SVG diagram, deterministic 8:1 Nether portal coordinate converter, explainable biome criteria matcher with graph relations, and geometric mob spawn sphere / despawn radius visualizer with circular SVG diagrams.
+**MineAtlas** is a local-first web application and knowledge graph explorer for **Minecraft Java Edition**. 
 
-> [!NOTE]
-> **Planned for Later Phases:**
-> - **Advancements & Lore Guide:** Progressions, milestones, and discovery pathways.
+Rather than serving as a passive data dump, MineAtlas models and reveals the interconnected nature of the Minecraft world. It allows players, technical builders, and survival enthusiasts to navigate semantic connections between mobs, drops, biomes, structures, villager trades, and technical farm designs:
+
+- $\text{Zombie} \xrightarrow{\text{DROPS}} \text{Rotten Flesh}$
+- $\text{Enderman} \xrightarrow{\text{SPAWNS\_IN}} \text{The End}$
+- $\text{Village} \xrightarrow{\text{FOUND\_IN}} \text{Plains}$
+- $\text{Iron Golem Farm} \xrightarrow{\text{REQUIRES}} \text{Villager Panic Mechanics}$
+- $\text{Bad Omen Raid Farm} \xrightarrow{\text{PRODUCES}} \text{Totem of Undying}$
+
+All user requests are served synchronously from an indexed local **SQLite cache**, providing instantaneous browsing with zero load placed on upstream servers.
 
 ---
 
-## Technology Stack
+## 2. Feature Highlights
 
-| Area | Technology | Purpose |
+- **Core Registries & Explorers:** Comprehensive, filterable registries for 76 mobs (with combat stats and breeding items), 64 biomes (with temperatures and climate categories), 100 representative key items and functional blocks, and 24 world structures.
+- **Interactive Knowledge Graph (`/graph`):** Cytoscape.js visual graph canvas supporting localized depth-1 and depth-2 neighborhood traversals, predicate filtering, deterministic "Why connected?" explanations, and an accessible Relationship List table.
+- **Curated Farm Blueprint Hub (`/farms`):** Handcrafted guides for technical Java Edition architectures (Iron Golem Panic Chamber, Bad Omen Raid Farm, Automatic Villager Breeder) with version-specific compatibility notes (such as Java 1.21 Ominous Bottle changes), interactive material checklists, and original spatial zone schematics.
+- **Calculated World Atlas Tools (`/world`):** Deterministic 8:1 Nether portal horizontal coordinate converter, rule-based climate/rarity biome criteria explorer, and geometric mob spawn/despawn radius visualizer with responsive SVG diagrams.
+- **Local-First & Safe Caching:** Three-tier architecture where the React frontend only communicates with the FastAPI backend. Upstream API calls are throttled by an internal 50 req/min token bucket rate limiter and cached permanently in SQLite.
+- **Transparent Provenance Tracking:** Every entity, relation, and formula displays a clear provenance badge: `API Cached` (upstream synced), `Curated Reference` (human-verified technical design), or `Calculated Result` (derived mathematics).
+
+---
+
+## 3. Application Screenshots
+
+The following screenshots capture the real application running locally on desktop resolution:
+
+### Home Overview & Quick Navigation
+![MineAtlas Home Overview](docs/assets/screenshots/home-page.png)
+*Hero section with quick search, data freshness telemetry, and direct links into core explorers.*
+
+---
+
+### Mobs Explorer Registry
+![MineAtlas Mobs Explorer](docs/assets/screenshots/mobs-explorer.png)
+*Filterable Minecraft Java Edition mob registry displaying combat stats, behavioral traits, and breeding requirements.*
+
+---
+
+### Cytoscape.js Knowledge Graph Explorer
+![MineAtlas Knowledge Graph Explorer](docs/assets/screenshots/graph-explorer.png)
+*Interactive graph explorer showing concentric node layouts, relationship edges, and localized depth-1/depth-2 radius controls.*
+
+---
+
+### Curated Farm Blueprint Guide
+![MineAtlas Curated Farm Guide Detail](docs/assets/screenshots/farm-guide-detail.png)
+*Curated technical guide for an Iron Golem Farm with Java 1.14–1.21+ compatibility notices and yield specifications.*
+
+---
+
+### Calculated World Atlas Tools
+![MineAtlas Calculated World Atlas Tools](docs/assets/screenshots/world-atlas-tools.png)
+*Spatial reference, Nether portal 8:1 scaling calculator, biome criteria builder, and mob spawn sphere visualizer.*
+
+---
+
+## 4. System Architecture
+
+MineAtlas enforces strict separation between user browsing and external API interactions:
+
+```mermaid
+flowchart TD
+    subgraph Tier 1: Presentation Layer
+        UI["React 18 + TypeScript + Vite (:5173)\nTailwind CSS • Cytoscape.js • SVG Schematics"]
+    end
+
+    subgraph Tier 2: Application & Local Cache
+        API["FastAPI Backend (:8000)\nPydantic Schemas • CORS • Local Query Engine"]
+        DB[("SQLite Database (mineatlas.db)\nSQLAlchemy 2.0 • 16 Tables • Alembic")]
+        API <-->|Synchronous SQL Reads| DB
+    end
+
+    subgraph Tier 3: Controlled Upstream Ingestion
+        CLI["Background CLI Sync & Seeders\nToken-Bucket Limiter (≤ 50 req/min)"]
+        AW["Astroworld Public API\n(api.astroworldmc.com)"]
+        CLI <-->|Throttled HTTPS Ingestion| AW
+        CLI -->|Idempotent Upsert & Edge Derivation| DB
+    end
+
+    UI <-->|HTTP REST /api/* (Zero External Calls)| API
+
+    classDef presentation fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef application fill:#022c22,stroke:#10b981,stroke-width:2px,color:#f8fafc;
+    classDef upstream fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+
+    class UI presentation;
+    class API,DB application;
+    class CLI,AW upstream;
+```
+
+> [!IMPORTANT]
+> **Zero Browser Leaks:** Normal user navigation and searches never make outbound network connections to Astroworld or third-party APIs. All queries are served locally from SQLite.
+
+---
+
+## 5. Technology Stack
+
+| Layer | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Backend Framework** | Python 3.12 + FastAPI | Fast, typed REST API |
-| **Database** | SQLite | Zero-config, single-file local relational database (`backend/data/mineatlas.db`) |
-| **ORM** | SQLAlchemy 2.0 | Type-safe declarative Python models |
-| **Database Migrations** | Alembic | Version-controlled database schema migrations |
-| **HTTP Client** | httpx | Upstream API communication with in-process token bucket rate limiter |
-| **Backend Testing** | Pytest | Automated endpoint, rate limiter, normalizer, and world tool suite (85 tests) |
-| **Frontend Testing** | Vitest + Testing Library | Automated unit, component, and routing test suite (48 tests) |
-| **Frontend Framework** | React 18 + TypeScript | UI component library with static types |
-| **Graph Visualization** | Cytoscape.js | High-performance directed graph canvas with concentric layout |
-| **Frontend Build Tool** | Vite | Ultra-fast local development & bundling |
-| **Frontend Styling** | Tailwind CSS | Utility-first dark Minecraft exploration theme |
-| **Routing** | React Router DOM | Client-side routing with URL query state persistence |
+| **Frontend Framework** | React 18 + TypeScript | Component-driven UI with strict static types |
+| **Build & Tooling** | Vite | Lightning-fast HMR and optimized Rollup production builds |
+| **Styling** | Tailwind CSS | Responsive dark exploration theme inspired by Minecraft tools |
+| **Graph Visualization** | Cytoscape.js | High-performance canvas for directed knowledge graph rendering |
+| **Backend Framework** | Python 3.12 + FastAPI | Asynchronous REST API with Pydantic request/response validation |
+| **Database** | SQLite | Single-file zero-config relational database (`mineatlas.db`) |
+| **ORM & Migrations** | SQLAlchemy 2.0 + Alembic | Declarative database models and versioned schema migrations |
+| **HTTP Client** | `httpx` | Resilient upstream client with token bucket rate limiting |
+| **Backend Testing** | Pytest (85 tests) | Unit and integration test suite covering APIs, schemas, and math |
+| **Frontend Testing** | Vitest + Testing Library (48 tests) | Component, routing, graph transformation, and visual tests |
 
 ---
 
-## Quick Start on Linux Mint
+## 6. Key Application Routes
 
-Follow these exact steps from the project root directory (`~/Desktop/mineatlas`):
+| Route | Description | Provenance Type |
+| :--- | :--- | :---: |
+| `/` | System overview, hero search, and cache telemetry | Mixed |
+| `/mobs` | Searchable mob registry with health, damage, and breeding filters | `astroworld_api` |
+| `/mobs/:mobId` | Deep specification for a mob with direct links to the graph | `astroworld_api` |
+| `/biomes` | Climate and dimension biome explorer with precipitation filters | `astroworld_api` |
+| `/items` | Representative catalog of 100 key functional items and blocks | `astroworld_api` |
+| `/structures` | World-generated structures with Y-level ranges | `astroworld_api` |
+| `/graph` | Interactive Cytoscape.js Knowledge Graph Explorer | `calculated` |
+| `/farms` | Farm Blueprint Hub listing verified Java Edition designs | `curated` |
+| `/farms/:farmSlug` | Step-by-step farm guide with material checklist and schematic | `curated` |
+| `/world` | Dimension reference, 8:1 portal converter, and spawn sphere visualizer | `calculated` / `curated` |
+| `/about-data` | Data transparency, rate limits, attribution, and disclaimers | — |
 
-### 1. Backend Setup & Run
+---
 
-Open a terminal and activate the existing Python 3.12 virtual environment:
+## 7. Quick Start on Linux Mint
 
+Follow these exact steps from the project root directory (`~/Desktop/mineatlas`). No Docker or external database servers are needed:
+
+### Prerequisites
+- Python 3.12+
+- Node.js 20+ (Node 22 recommended)
+- Git
+
+### 1. Setup Backend & Seed Database
 ```bash
-# 1. Navigate to the project folder
+# 1. Navigate to repository root
 cd ~/Desktop/mineatlas
 
-# 2. Activate the existing virtual environment
+# 2. Activate Python virtual environment
 source venv/bin/activate
 
 # 3. Install backend dependencies
 pip install -r backend/requirements.txt
 
-# 4. Run database migrations to apply the canonical schema
+# 4. Apply database schema migrations
 cd backend
 alembic upgrade head
 cd ..
 
-# 5. Run the complete backend test suite (60 tests)
-PYTHONPATH=backend pytest backend/tests
+# 5. Populate curated farm blueprints and world reference data
+PYTHONPATH=backend python -m app.scripts.seed_curated_farms
+PYTHONPATH=backend python -m app.scripts.seed_world_reference
 
-# 6. Start the FastAPI development server
-uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8000
+# 6. (Optional) Run initial Astroworld API sync if cache is empty
+# Note: mineatlas.db is pre-synced with 688 entities and 650 edges
+# PYTHONPATH=backend python -m app.scripts.sync_astroworld
 ```
 
-The backend is live at:
-- Interactive API Docs (Swagger): [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- Health Check: [http://127.0.0.1:8000/api/health](http://127.0.0.1:8000/api/health)
-- Public Data Status: [http://127.0.0.1:8000/api/data-status](http://127.0.0.1:8000/api/data-status)
-- Development Sync Status: [http://127.0.0.1:8000/api/development/sync-status](http://127.0.0.1:8000/api/development/sync-status)
-
----
-
-### 2. Primary API Endpoints Overview
-
-All endpoints read strictly from the local SQLite cache and never call upstream APIs:
-
-| Endpoint | Method | Purpose | Key Parameters / Filters |
-|---|:---:|---|---|
-| `/api/search` | `GET` | Global multi-entity search | `q`, `types`, `limit` |
-| `/api/mobs` | `GET` | Paginated Minecraft mobs | `page`, `page_size`, `search`, `type`, `category`, `tameable`, `breedable` |
-| `/api/mobs/{mob_id}` | `GET` | Detailed mob record & stats | `mob_id` |
-| `/api/biomes` | `GET` | Paginated Minecraft biomes | `page`, `page_size`, `search`, `dimension`, `category`, `rarity` |
-| `/api/biomes/{biome_id}` | `GET` | Single biome detail | `biome_id` |
-| `/api/items` | `GET` | Key items and functional blocks | `page`, `page_size`, `search`, `category`, `enchantable` |
-| `/api/items/{item_id}` | `GET` | Single item detail | `item_id` |
-| `/api/structures` | `GET` | World structures | `page`, `page_size`, `search`, `dimension`, `category`, `rarity` |
-| `/api/structures/{structure_id}` | `GET` | Single structure detail | `structure_id` |
-| `/api/enchantments` | `GET` | Equipment enchantments | `page`, `page_size`, `search`, `category`, `treasure_only` |
-| `/api/achievements` | `GET` | Advancements / achievements | `page`, `page_size`, `search`, `tab` |
-| `/api/versions` | `GET` | Java Edition version history | `page`, `page_size`, `search`, `release_type` |
-| `/api/commands` | `GET` | Server and in-game commands | `page`, `page_size`, `search`, `category` |
-| `/api/trades` | `GET` | Villager trade transactions | `page`, `page_size`, `search`, `profession_id`, `level` |
-| `/api/villager-professions` | `GET` | 13 villager professions | `page`, `page_size`, `search` |
-| `/api/graph/neighbors/{type}/{id}` | `GET` | Localized graph traversal | `depth` (1 or 2), `relationship_types`, `limit` |
-| `/api/world/reference` | `GET` | Curated Java dimension & coordinate reference | — |
-| `/api/world/portal-convert` | `POST` | Deterministic 8:1 Nether portal coordinate converter | `source_dimension`, `x`, `y`, `z` |
-| `/api/world/biome-matches` | `GET` | Rule-based biome criteria matcher with graph relations | `dimension`, `category`, `rarity`, `precipitation`, `beginner_friendly`, `has_village_opportunity` |
-| `/api/world/spawn-sphere` | `POST` | Geometric spawn sphere and despawn radius visualizer | `radius`, `player_y` |
-| `/api/data-status` | `GET` | Cache health & totals | — |
-
-For complete query documentation, see [`docs/BACKEND_QUERY_API.md`](docs/BACKEND_QUERY_API.md).
-
----
-
-### 3. Running Data Ingestion & Sync (Offline CLI)
-
-To synchronize upstream Astroworld data into the local SQLite cache and derive graph edges:
-
+### 2. Start the Backend API Server
 ```bash
-cd ~/Desktop/mineatlas
-source venv/bin/activate
-cd backend
-python -m app.scripts.sync_astroworld
+# Start FastAPI backend at http://localhost:8000
+PYTHONPATH=backend uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8000
 ```
+- Interactive API Docs (Swagger): [http://localhost:8000/docs](http://localhost:8000/docs)
+- Health Check: [http://localhost:8000/api/health](http://localhost:8000/api/health)
+- Cache Telemetry: [http://localhost:8000/api/data-status](http://localhost:8000/api/data-status)
 
-* Contacts all 9 approved Astroworld collection endpoints sequentially.
-* Gated by the internal **50 requests per minute** token bucket rate limiter.
-* Idempotently upserts records without duplicates and derives knowledge graph edges.
-
----
-
-### 4. Frontend Setup & Run
-
-Open a second terminal window for the frontend:
-
+### 3. Setup & Start the Frontend (Second Terminal)
 ```bash
-# 1. Navigate to the frontend directory
+# 1. Open a new terminal and navigate to frontend directory
 cd ~/Desktop/mineatlas/frontend
 
-# 2. Install frontend dependencies
-npm install
+# 2. Install dependencies via npm ci
+npm ci
 
-# 3. Build for production (verifies TypeScript types & bundle)
-npm run build
-
-# 4. Start the Vite development server
+# 3. Start Vite local development server
 npm run dev
 ```
-
-The frontend will run at:
-- Local App: [http://localhost:5173](http://localhost:5173)
+- Open your browser to: **[http://localhost:5173](http://localhost:5173)**
 
 ---
 
-## Project Structure
+## 8. Automated Testing & Verification
 
-```text
-mineatlas/
-├── README.md               # Project overview & run commands
-├── LICENSE                 # MIT License
-├── .gitignore              # Ignores venv, node_modules, .env, *.db, raw snapshots
-├── .env.example            # Root environment variable template
-├── docs/
-│   ├── SCOPE.md            # Scope boundaries (Java Edition only, rate limits)
-│   ├── ARCHITECTURE.md     # Architecture overview & data flow diagrams
-│   ├── API_DATA_AUDIT.md   # Empirical findings from Phase 2 Astroworld audit
-│   ├── DATA_MODEL.md       # Canonical SQLite database schema and graph design
-│   ├── INGESTION_AND_SYNC.md # Phase 4 ingestion, rate limiting & sync documentation
-│   ├── BACKEND_QUERY_API.md  # Phase 5 query API reference & parameter guide
-│   └── GRAPH_EXPLORER.md     # Phase 7 Cytoscape.js Knowledge Graph Explorer guide
-│
-├── backend/
-│   ├── requirements.txt    # FastAPI, Uvicorn, Pytest, httpx, SQLAlchemy, Alembic
-│   ├── .env.example        # Backend environment variables template
-│   ├── alembic.ini         # Alembic migration configuration
-│   ├── pytest.ini          # Pytest configuration
-│   ├── alembic/            # Database schema migrations
-│   ├── app/
-│   │   ├── main.py         # FastAPI application entrypoint & router registration
-│   │   ├── config.py       # Configuration & rate limiting parameters
-│   │   ├── clients/        # Rate-limited AstroworldClient
-│   │   ├── services/       # Query, graph, ingestion, and rate-limiting services
-│   │   │   ├── query_service.py
-│   │   │   ├── graph_service.py
-│   │   │   ├── rate_limiter.py
-│   │   │   ├── normalizers.py
-│   │   │   └── ingestion_service.py
-│   │   ├── schemas/        # Pydantic v2 response & request validation models
-│   │   ├── routers/        # Mobs, biomes, items, structures, reference, graph, search, farms
-│   │   ├── db/             # Database connection, base classes, and ORM models
-│   │   └── scripts/        # CLI scripts (sync_astroworld.py, audit_astroworld.py, seed_curated_farms.py)
-│   ├── data/
-│   │   ├── mineatlas.db    # Local SQLite database (ignored by Git)
-│   │   └── raw_snapshots/  # Local JSON snapshots (ignored by Git)
-│   └── tests/              # 69 Pytest automated unit & integration tests
-│
-├── frontend/               # React + TypeScript + Vite + Tailwind CSS frontend
-└── .github/
-    └── workflows/
-        └── ci.yml          # GitHub Actions CI workflow (tests + build)
+Run the automated test suites locally:
+
+```bash
+# 1. Run all backend tests (85 passing tests)
+source venv/bin/activate
+PYTHONPATH=backend pytest backend/tests -v
+
+# 2. Run all frontend tests in non-watch mode (48 passing tests)
+npm test --prefix frontend
+
+# 3. Run production build verification (TypeScript typecheck + Vite bundle)
+npm run build --prefix frontend
 ```
 
 ---
 
-## Architectural Rules & Guardrails
+## 9. Data Provenance & Ingestion Architecture
 
-1. **Minecraft Java Edition Exclusively:** No Bedrock edition data or conflicting game mechanics.
-2. **Zero Browser-to-Astroworld Calls:** The frontend only speaks to our FastAPI backend.
-3. **100% Local SQLite Reads:** Normal user requests read from local SQLite and never trigger upstream network traffic.
-4. **Internal 50 RPM Rate Limiter:** Local in-process token-bucket limiter protects upstream capacity during offline syncs.
-5. **No Heavy Database Infrastructure:** Runs natively on Linux Mint without Docker, Redis, PostgreSQL, or Neo4j. Powered by local SQLite (`backend/data/mineatlas.db`).
-6. **Clear Provenance:** Every database record tracks `source_type` (`astroworld_api`, `curated`, or `calculated`), `source_url`, `game_version`, and `last_verified_at`.
+MineAtlas distinguishes three data categories:
+
+1. **API-Backed Data (`source_type = "astroworld_api"`):**
+   - Ingested from the public Astroworld API through the offline CLI script `sync_astroworld.py`.
+   - Gated by an internal **50 requests per minute** token bucket limiter (1 request every 1.2s with exponential backoff).
+   - Upserted idempotently into local SQLite tables to avoid duplicate entries.
+2. **Curated Content (`source_type = "curated"`):**
+   - Handcrafted technical farm blueprints and canonical dimension specifications authored specifically for Minecraft Java Edition.
+   - Includes version compatibility notes, material checklists, and simplified spatial zone schematics.
+3. **Calculated Results (`source_type = "calculated"`):**
+   - Derived graph relationships (e.g., `ZOMBIE -> DROPS -> ROTTEN_FLESH`), 8:1 Nether portal coordinate conversions, spawn sphere geometry, and deterministic biome criteria matching.
 
 ---
 
-## License
+## 10. Upstream Attribution
 
-This project is licensed under the [MIT License](LICENSE).
+Entity data in MineAtlas is powered by the Astroworld API under proper attribution:
+
+<p align="center">
+  <a href="https://api.astroworldmc.com" target="_blank" rel="noopener">
+    <strong>Powered by Astroworld API</strong>
+  </a>
+</p>
+
+An equivalent visible and accessible link is provided inside the running application on the [`/about-data`](http://localhost:5173/about-data) page.
+
+---
+
+## 11. Honest Limitations
+
+- **Not Complete Block Coverage:** MineAtlas indexes a curated selection of 100 key functional items and blocks from Astroworld. It does not claim complete coverage of all 1,000+ decorative Minecraft block variants.
+- **No Arbitrary Seed Analysis:** MineAtlas does **not** locate biomes, structures, or slime chunks for an arbitrary user-submitted Minecraft seed.
+- **Coordinate Target Only:** The Nether Portal converter calculates the mathematical 8:1 target coordinates. It does not simulate in-game 128-block portal search radius linking or obstructions.
+- **Geometric Planning Model:** The spawn sphere visualizer computes Euclidean 3D sphere geometry. It is not an in-game mob spawning simulation engine and does not simulate mob caps or light-level tick passes.
+- **Version Sensitivity:** Technical farm designs rely on Java Edition mechanics that can shift between major releases (such as the introduction of Ominous Bottles in Java 1.21). Always review guide notices before building in survival.
+- **No User Accounts:** MineAtlas is a local-first exploration tool; it does not include user accounts, authentication, or cloud data sync.
+- **Non-Affiliation:** Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.
+
+---
+
+## 12. Future Roadmap
+
+- [ ] **Advancements & Lore Guide:** Visual advancement tree progression tracking and achievement prerequisites.
+- [ ] **Expanded Farm Blueprints:** Additional curated technical guides (Wither Skeleton Farm, Enderman Farm, Creeper Powder Farm).
+- [ ] **Expanded Items Catalog:** Integration with additional open-source Java Edition block registries to expand past the initial 100 key blocks.
+- [ ] **Interactive Portal Alignment Planner:** Visual 2D coordinate map showing mutual portal linkage zones.
+- [ ] **Containerized Local Deployment Option:** Optional single-command compose file for persistent containerized desktop environments.
+
+---
+
+## 13. License
+
+MineAtlas is distributed under the terms of the **MIT License**. See [`LICENSE`](LICENSE) for full details.

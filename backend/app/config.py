@@ -9,8 +9,8 @@ HOST: str = os.getenv("HOST", "127.0.0.1")
 PORT: int = int(os.getenv("PORT", "8000"))
 APP_ENV: str = os.getenv("APP_ENV", "development")
 
-# CORS configuration - Local Vite frontend URL only
-_cors_raw: str = os.getenv("CORS_ORIGINS", "http://localhost:5173")
+# CORS configuration - Local Vite frontend URL only (localhost and 127.0.0.1)
+_cors_raw: str = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
 CORS_ORIGINS: list[str] = [origin.strip() for origin in _cors_raw.split(",") if origin.strip()]
 
 # Database configuration (SQLite local database)

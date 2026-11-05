@@ -38,6 +38,18 @@ describe('AboutDataPage Component', () => {
       expect(screen.getByText(/React Frontend \(Browser\)/i)).toBeInTheDocument();
       expect(screen.getByText(/FastAPI Backend & SQLite Cache/i)).toBeInTheDocument();
       expect(screen.getByText(/Astroworld Upstream Ingestion/i)).toBeInTheDocument();
+
+      // Check visible Astroworld attribution links
+      const attributionLinks = screen.getAllByRole('link', { name: /Powered by Astroworld API/i });
+      expect(attributionLinks.length).toBeGreaterThanOrEqual(1);
+      attributionLinks.forEach((link) => {
+        expect(link).toHaveAttribute('href', 'https://api.astroworldmc.com');
+        expect(link.getAttribute('rel') || '').not.toContain('nofollow');
+      });
+
+      // Check legal & scope disclaimers
+      expect(screen.getByText(/Minecraft Java Edition Only:/i)).toBeInTheDocument();
+      expect(screen.getByText(/Not an official Minecraft product/i)).toBeInTheDocument();
     });
   });
 });

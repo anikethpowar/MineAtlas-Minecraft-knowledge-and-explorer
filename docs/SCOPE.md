@@ -41,20 +41,18 @@ To ensure MineAtlas runs comfortably and natively on **Linux Mint** and standard
 
 ---
 
-## 5. Development Phases Overview
+## 5. Development Phases & Final Status
 
-1. **Phase 1: Project Foundation (Current)**
-   - Git repository setup & remote linkage.
-   - FastAPI backend with `/api/health` and CORS configuration.
-   - React + TypeScript + Vite frontend with Tailwind CSS and dark exploration theme.
-   - Automated Pytest test suite and GitHub Actions CI workflow.
-   - Architecture & Scope documentation.
+MineAtlas was implemented across 10 structured phases:
 
-2. **Phase 2: Database & Upstream Ingestion (Future)**
-   - SQLite schema for items, mobs, biomes, and relationships.
-   - Rate-limited Astroworld client (50 req/min).
-
-3. **Phase 3: Knowledge Graph Explorer & Farm Guides (Future)**
-   - Interactive relationship visualization (e.g., `Plains → CONTAINS → Village`).
-   - Curated Java Edition farm guides with verified production rates.
+1. **Phase 1: Foundation:** FastAPI backend, React + Vite frontend, CI workflow, and initial architecture.
+2. **Phase 2: API Audit:** In-process rate-limited audit verifying all 9 Astroworld collection endpoints.
+3. **Phase 3: Database Schema:** SQLite persistence with SQLAlchemy ORM and Alembic migrations across 16 tables.
+4. **Phase 4: Ingestion & Relationship Derivation:** Token-bucket rate limiter (50 req/min), idempotent sync engine, probability normalizers, and automated derivation of 650 semantic graph edges.
+5. **Phase 5: Backend Query API:** Typed, paginated REST endpoints with filters, global search, localized graph neighbors (depth 1 & 2), and public cache status reporting.
+6. **Phase 6: Core Frontend Explorer:** Browser explorer for Mobs, Biomes, Items & Key Blocks (100 representative entries), Structures, Search, and data transparency.
+7. **Phase 7: Knowledge Graph Explorer:** Cytoscape.js interactive graph canvas (`/graph`) with shape-coded entity nodes, directed relationship arrows, deterministic "Why connected?" explanations, and accessible Relationship List view.
+8. **Phase 8: Curated Farm Blueprint Hub:** Dedicated hub (`/farms`) and guide details for verified Java Edition architectures (Iron Farm, Raid Farm, Villager Breeder) with interactive checklists and SVG schematics.
+9. **Phase 9: Calculated World Atlas Tools:** Spatial reference at `/world`, responsive coordinate diagrams, deterministic 8:1 Nether portal converter, explainable biome criteria matcher, and geometric spawn sphere visualizer.
+10. **Phase 10: Portfolio Release & QA (Current):** Full regression testing, accessibility audit, live desktop screenshots, documentation overhaul, and final portfolio polish.
 

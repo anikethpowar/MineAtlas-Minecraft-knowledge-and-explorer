@@ -104,8 +104,8 @@ export const HomePage: React.FC = () => {
 
         <div className="relative z-10 max-w-3xl">
           <div className="flex flex-wrap items-center gap-2.5 mb-4">
-            <span className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/30">
-              Phase 9: Calculated World Atlas
+            <span className="px-2.5 py-1 text-xs font-semibold uppercase tracking-wider rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              MineAtlas v1.0 &bull; Portfolio Release
             </span>
             <EditionBadge edition="Java Edition" />
             <DataFreshnessIndicator status={dataStatus} loading={loadingStatus} />

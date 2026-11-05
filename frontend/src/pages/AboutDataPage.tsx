@@ -52,7 +52,7 @@ export const AboutDataPage: React.FC = () => {
         <h2 className="text-base font-bold text-slate-100 mb-3 flex items-center justify-between">
           <span>Live SQLite Cache Status</span>
           <span className="text-xs font-mono font-normal text-emerald-400">
-            Phase 6: Synchronous Local Queries
+            Synchronous Local SQLite Queries
           </span>
         </h2>
 
@@ -168,9 +168,20 @@ export const AboutDataPage: React.FC = () => {
               <h3 className="text-sm font-semibold text-slate-200 mb-1">
                 API-Backed Entities
               </h3>
-              <p className="text-xs text-mc-textMuted">
-                Raw entities ingested from <code className="text-slate-300">api.astroworldmc.com</code>, including mobs, biomes, 100 key items, structures, enchantments, and achievements.
+              <p className="text-xs text-mc-textMuted leading-relaxed mb-3">
+                Raw entity registries ingested from <code className="text-slate-300">api.astroworldmc.com</code>, including mobs, biomes, 100 key items and blocks, structures, enchantments, and advancements.
               </p>
+            </div>
+            <div className="pt-2 border-t border-slate-800">
+              <a
+                href="https://api.astroworldmc.com"
+                target="_blank"
+                rel="noopener"
+                className="text-xs font-semibold text-sky-400 hover:text-sky-300 transition-colors inline-flex items-center gap-1"
+              >
+                <span>Powered by Astroworld API</span>
+                <span aria-hidden="true">&rarr;</span>
+              </a>
             </div>
           </div>
 
@@ -180,10 +191,10 @@ export const AboutDataPage: React.FC = () => {
                 <SourceBadge sourceType="calculated" />
               </div>
               <h3 className="text-sm font-semibold text-slate-200 mb-1">
-                Calculated Relations
+                Calculated Relations &amp; Tools
               </h3>
-              <p className="text-xs text-mc-textMuted">
-                Relationship edges derived during ingestion by resolving entity names and properties (e.g. <code className="text-slate-300">bee SPAWNS_IN plains</code>).
+              <p className="text-xs text-mc-textMuted leading-relaxed">
+                Deterministic mathematical computations and graph relations, including 8:1 Nether portal scaling, spawn sphere Euclidean geometry, and semantic entity links (e.g. <code className="text-slate-300">zombie DROPS rotten_flesh</code>).
               </p>
             </div>
           </div>
@@ -194,29 +205,68 @@ export const AboutDataPage: React.FC = () => {
                 <SourceBadge sourceType="curated" />
               </div>
               <h3 className="text-sm font-semibold text-slate-200 mb-1">
-                Curated Content
+                Curated Content &amp; Guides
               </h3>
-              <p className="text-xs text-mc-textMuted">
-                Verified Java Edition mechanics, manual annotations, and future farm guide architectures designed for player exploration.
+              <p className="text-xs text-mc-textMuted leading-relaxed">
+                Handcrafted, version-verified technical farm architectures (Iron Farm, Raid Farm, Villager Breeder) and canonical dimension specifications with version compatibility annotations.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Scope Boundaries */}
-      <section className="p-5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3 text-xs text-mc-textMuted leading-relaxed">
+      {/* Upstream Attribution Banner */}
+      <section className="p-4 sm:p-5 rounded-xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span className="text-[11px] font-mono uppercase text-sky-400 font-semibold block mb-0.5">
+            Upstream Attribution
+          </span>
+          <p className="text-xs text-slate-300">
+            MineAtlas entity data is cached and synchronized with the public Astroworld API under proper attribution.
+          </p>
+        </div>
+        <a
+          href="https://api.astroworldmc.com"
+          target="_blank"
+          rel="noopener"
+          className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 text-xs font-semibold font-mono transition-colors shrink-0"
+        >
+          Powered by Astroworld API
+        </a>
+      </section>
+
+      {/* Scope Boundaries & Disclaimers */}
+      <section className="p-5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-4 text-xs text-mc-textMuted leading-relaxed">
         <h3 className="text-sm font-semibold text-slate-200">
-          Scope Boundaries &amp; Item Coverage Note
+          Scope Boundaries, Limitations &amp; Disclaimers
         </h3>
-        <p>
-          <strong className="text-slate-300">Minecraft Java Edition Only: </strong>
-          All statistics, drop rates, mob behavior, generation Y-levels, and biome temperatures apply specifically to Minecraft Java Edition. Bedrock Edition mechanics are not represented.
-        </p>
-        <p>
-          <strong className="text-slate-300">Items &amp; Key Blocks Scope: </strong>
-          The upstream Astroworld API provides a curated catalog of 100 representative items and blocks. MineAtlas does not claim to index the full 1,000+ Minecraft block registry.
-        </p>
+
+        <div className="space-y-3">
+          <p>
+            <strong className="text-slate-300">Minecraft Java Edition Only: </strong>
+            All statistics, drop tables, mob pathfinding, spawning distances, Y-generation levels, and farm mechanics apply strictly to Minecraft Java Edition. Bedrock Edition mechanics (such as iron golem spawning thresholds or raid mechanics) are fundamentally different and are not supported.
+          </p>
+
+          <p>
+            <strong className="text-slate-300">Items &amp; Key Blocks Scope: </strong>
+            The upstream Astroworld API provides a representative catalog of 100 key items and blocks. MineAtlas does not claim complete indexation of the full 1,000+ Minecraft block registry.
+          </p>
+
+          <p>
+            <strong className="text-slate-300">Curated Farm Guides Disclaimer: </strong>
+            Farm guides represent curated technical designs. Technical mechanics can shift across minor and major Java updates (e.g., Java 1.21 Ominous Bottle changes for raid triggers). Always review the guide&apos;s compatibility notice before survival construction.
+          </p>
+
+          <p>
+            <strong className="text-slate-300">World Atlas &amp; Calculators Limitations: </strong>
+            MineAtlas does not analyze arbitrary player seeds, compute climate noise maps, or locate structures for a seed. Nether portal conversions give the expected coordinate-scale target only, not guaranteed portal-linking predictions. Mob spawn spheres model geometric boundaries, not live mob-cap simulation engines.
+          </p>
+
+          <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-400">
+            <strong className="text-slate-300 block mb-0.5">Legal Disclaimer:</strong>
+            Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.
+          </div>
+        </div>
       </section>
     </div>
   );

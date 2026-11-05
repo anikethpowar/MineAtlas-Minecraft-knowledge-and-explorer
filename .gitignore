@@ -25,12 +25,13 @@ coverage/
 *.sqlite3
 
 # Astroworld API raw snapshots (audit data kept local only)
-backend/data/raw_snapshots/*
+backend/data/raw_snapshots/
 !backend/data/raw_snapshots/.gitkeep
 
 # Node & Frontend build artifacts
 node_modules/
 dist/
+frontend/dist/
 dist-ssr/
 
 # Operating system files
@@ -38,7 +39,6 @@ dist-ssr/
 Thumbs.db
 
 # IDE files (ignore user settings, allow future intentional shared settings)
-.vscode/*
-!.vscode/settings.json
+.vscode/
 .idea/
 
